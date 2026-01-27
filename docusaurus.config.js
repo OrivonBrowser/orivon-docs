@@ -125,12 +125,12 @@ const config = {
             title: 'Community',
             items: [
               {
-                label: 'Orivon Discussion',
-                href: 'https://orivonstack.com',
-              },
-              {
                 label: 'Discord',
                 href: 'https://discord.gg/DuRg87MvgD',
+              },
+              {
+                label: 'OrivonStack Forum',
+                href: 'https://orivonstack.com',
               },
               {
                 label: 'Telegram Group',
@@ -148,6 +148,10 @@ const config = {
               {
                 label: 'GitHub',
                 href: 'https://github.com/Sp3rick/orivon-docs',
+              },
+              {
+                label: 'Twitter / X',
+                href: 'https://x.com/OrivonBrowser',
               },
             ],
           },
