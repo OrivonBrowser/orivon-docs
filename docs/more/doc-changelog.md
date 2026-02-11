@@ -7,3 +7,7 @@ sidebar_position: 10
 Here you will find a list of updates that are made to this documentation across the time, come back here every once and then to be sure you don't stay behind on anything about Orivon
 
 *22 Jan 2026: Documentation published* 
+
+*11 Feb 2026:*
+- *Added [**Roadmap**](../roadmap) and [**Economic strategy**](../economical-strategy)*
+- *Improved [**The Orivon Project**](../orivon) and [**Get involved**](../involving)*

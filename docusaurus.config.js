@@ -27,7 +27,7 @@ const config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'Sp3rick', // Usually your GitHub org/user name.
+  organizationName: 'OrivonBrowser', // Usually your GitHub org/user name.
   projectName: 'orivon-docs', // Usually your repo name.
 
   deploymentBranch: 'gh-pages',
@@ -54,7 +54,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/Sp3rick/orivon-docs/tree/main',
+            'https://github.com/OrivonBrowser/orivon-docs/tree/main',
         },
         blog: {
           showReadingTime: true,
@@ -65,7 +65,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/Sp3rick/orivon-docs/tree/main',
+            'https://github.com/OrivonBrowser/orivon-docs/tree/main',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
@@ -103,7 +103,7 @@ const config = {
           },
           //{to: '/blog', label: 'Blog', position: 'left'},
           {
-            href: 'https://github.com/Sp3rick/orivon-docs',
+            href: 'https://github.com/OrivonBrowser/orivon-docs',
             label: 'GitHub',
             position: 'right',
           },
@@ -147,7 +147,7 @@ const config = {
               },*/
               {
                 label: 'GitHub',
-                href: 'https://github.com/Sp3rick/orivon-docs',
+                href: 'https://github.com/OrivonBrowser/orivon-docs',
               },
               {
                 label: 'Twitter / X',

@@ -15,7 +15,7 @@ Otherwise talk about it into our [Discord](https://discord.gg/DuRg87MvgD) server
 ## Installation
 
 ```bash
-git clone https://github.com/Sp3rick/orivon-docs/
+git clone https://github.com/OrivonBrowser/orivon-docs/
 cd orivon-docs && npm i
 ```
 
