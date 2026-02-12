@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Aknowledgements
+# Acknowledgements
 
 *Last update: 3 Feb 2026*
 

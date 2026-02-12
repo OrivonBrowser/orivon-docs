@@ -9,5 +9,8 @@ Here you will find a list of updates that are made to this documentation across 
 *22 Jan 2026: Documentation published* 
 
 *11 Feb 2026:*
-- *Added [**Roadmap**](../roadmap) and [**Economic strategy**](../economical-strategy)*
-- *Improved [**The Orivon Project**](../orivon) and [**Get involved**](../involving)*
+- *Added [**Roadmap**](../roadmap)*
+- *Improved [**The Orivon Project**](../orivon), [**Economic strategy**](../economical-strategy) and [**Get involved**](../involving)*
+
+*12 Feb 2026:*
+- *Improved [**The Orivon Project**](../orivon), and many other pages*
