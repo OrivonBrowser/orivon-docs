@@ -22,7 +22,7 @@ Let's dive deep into these
 
 ### Featured Sites, Apps and Integrations
 
-Compliant DApps, Sites and Integrations with a good level of [Web3 Score](implementations/web3-score) are eligible for being featured on Orivon
+Compliant DApps, Sites and Integrations with a good level of [Web3 Score](/docs/implementations/web3-score) are eligible for being featured on Orivon
 
 These featuring will be offered in different ways:
 
@@ -52,7 +52,7 @@ Even in this case, lower Trustlessity level translates to higher cost
 
 ### Web3 Scoring provider
 
-If you read [Web3 Scores](implementations/web3-score) you already know that a provider to give these judgments should exists  
+If you read [Web3 Scores](/docs/implementations/web3-score) you already know that a provider to give these judgments should exists  
 Orivon could build up a Web3 Score provider trough it's [DAO](/docs/dao-plan)
 
 Obviously doing that for the entire Internet for all new or less known projects isn't an easy task, the same applies for any update, which requires a new Web3 Score evaluation
@@ -75,4 +75,4 @@ Then, further investments will be for new internal Orivon projects, or funding t
 
 That's out current plan of the Orivon economical strategy, if you have advices you can always look up at our [**Discord**](https://discord.gg/DuRg87MvgD) or our official forum [**OrivonStack**](https://orivonstack.com)
 
-You can hop to the next page where we show details of [Implementations](category/implementations) of various components of Orivon
+You can hop to the next page where we show details of [Implementations](/docs/implementations/dashboard-app) of various components of Orivon
