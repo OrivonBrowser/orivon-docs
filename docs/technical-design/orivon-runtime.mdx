@@ -1,0 +1,92 @@
+---
+sidebar_position: 0
+---
+
+# orivon-runtime
+
+*orivon-runtime* is the standalone packet where the core of the Orivon technology is made possible
+
+As Orivon aims to be as viable as possible for mass adoption, modularization becomes crucial.  
+Having the orivon-runtime separated from Browser takes relevant benefits:
+
+- **Cross compatibility of WASM modules** across any type of Orivon implementation (It may be HTTP clients, Curl, Browsers, Embedded devices, Mobile implementations etc...).  
+<small>As an example, an Orivon Community dev who makes a DNS Resolution module for .eth domains, will automatically work everywhere orivon-runtime does</small>
+
+- **Better code maintenance and scalability**
+
+- **Better security model**
+
+*orivon-runtime* as a package is supposed to be integrated into Clients programs that will use it based on their needs
+
+These Clients has the full power over *orivon-runtime*, so, they will be the ones responsible of following the corrects security guidelines based on the official Orivon best practice instructions
+
+
+Orivon implements [*orivon-core*](/docs/technical-design/orivon-core) which wraps the *orivon-runtime* and uses it by correctly following the Orivon standards
+
+
+For development purposes, within the *orivon-runtime* repo there will be a minimal command-line client to test it
+
+
+# WASM Modules Engine
+
+I will share you one example of *orivon-runtime* goals we keep in mind while working on the design:  
+
+Our goal is to be able to run on *orivon-runtime* a fully working bitcoin node  
+It will require to compile it to WASM and run successfully trough *orivon-runtime*
+
+
+## WASM Stack
+
+Orivon will use a suitable WASM Runtime (probably Wasmtime) and will extend it's control over needed OS-level access functions trough the WebAssembly Component Model with WIT-defined interfaces.
+
+WASI will be also included in the stack, this will cover various standard system functions, reducing the need for *orivon-runtime* devs to manually implement these again, and focus on the remaining others
+
+All of that will lead us to being able to run a bitcoin node (and so most of other web3 programs) on *orivon-runtime*
+
+
+## Modules
+
+Modules are just WASM compiled code, which is supposed to run under *orivon-runtime*
+
+The client can inject and manage those modules into *orivon-runtime*  
+For every module injected an android-inspired identifier is required, like *bitcoin.node.metamask*  
+
+Once injection happens, the module will probably be useless, since by default it's completely isolated by anything else which is relevant in Wasmtime and the only way to execute it would be a direct call of its exposed functions from *orivon-runtime*
+
+So *orivon-runtime* implements additional ways to manage these modules in a meaningful way
+
+
+### How can modules be managed?
+
+- ***Add module***
+
+- ***Remove module***
+
+- ***Permissions***: You can assign to your module the permission to access all, or selected exposed functions of another module  
+Example: Grant *bitcoin.crypto.orivon* to access all *group.network.btc-0-1* functions
+
+- ***OS Grants***: Grants permission to access specific system access/functions
+
+
+### How modules works together?
+
+Permissions grants are the only systems modules relies on to work together
+
+Exists 3 kinds of Modules:
+
+**Library Module**:  
+Library modules are just modules which other modules can be connected to statically, that means that Library modules doesn't keep an independent state and they can't run as services independently. Library modules are very memory efficient.  
+They can have access to all of *OS Grants* and *Permissions* grants only towards other Library modules  
+**Id** (example): *lib.math.orivon*
+
+**Module**:  
+Modules are the main place where most Orivon developers will make their app backend logic, they always run as services  
+They can have access to all of *OS Grants* and *Permission* grants towards any other module  
+**Id** (example): *bitcoin.node.orivon*
+
+**Group Module**:  
+Group Modules serves to group multiple Modules together and they are merely a standard-enforced thing  
+Group modules has granted the access to a list of Modules and accesses a known set of functions 
+**Id** (example): *group.network.btc-1-0*
+
+Then ***standards*** are the key to make modules work well all together in a safe manner

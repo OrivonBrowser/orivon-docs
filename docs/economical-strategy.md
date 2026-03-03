@@ -53,13 +53,23 @@ Even in this case, lower Trustlessity level translates to higher cost
 ### Web3 Scoring provider
 
 If you read [Web3 Scores](implementations/web3-score) you already know that a provider to give these judgments should exists  
-Orivon could build up a Web3 Score provider trough it's DAO
+Orivon could build up a Web3 Score provider trough it's [DAO](/docs/dao-plan)
 
 Obviously doing that for the entire Internet for all new or less known projects isn't an easy task, the same applies for any update, which requires a new Web3 Score evaluation
 
 Web3sites, Apps and Integrations can pay a single time, or a subscription, to get faster priority on getting Web3 Scores, subscriptions would guarantee also fast evaluation for each released update
 
 Regardless of that, Orivon will always try to cover as much services as possible with a Web3 Score, payed evaluations serves mostly to boost this process and guarantee it's reliance and operability
+
+
+## Investment strategy
+
+Treasury of the Orivon [DAO](/docs/dao-plan) will be used mainly to maintain the Orivon softwares, like *orivon-core*, *Orivon Browser* etc...
+
+Then, further investments will be for new internal Orivon projects, or funding towards other Web3 projects
+
+*We have the interest into further innovation for Web3 after the Orivon Browser will be made up*
+
 
 ## Last words
 

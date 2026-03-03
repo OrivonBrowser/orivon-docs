@@ -1,0 +1,165 @@
+---
+sidebar_position: 1
+---
+
+# Orivon Objects
+
+An useful list of Orivon made Objects and examples of them
+
+## CapabilityDescriptor
+
+CapabilityDescriptor allows to inform about a general or specific encryption system capability
+
+On the *keyList* parameter '***\{\}***' wildcards are supported  
+**'\{\*\}'** indicates anything  
+**'m/\{\*\}'** indicates m/+anything (example: m/44'/0'/0'/0/0 or m/500'/0'/90)  
+**'\{0-10\}'** indicates a number from 0 to 10  
+**'\{5-*\}'** indicates a number from 5 to anything bigger than 5  
+
+``` javascript
+interface CapabilityDescriptor {
+  algorithm: {
+    mode: string                // "secp256k1" | "ed25519" | "AES-GCM" | "ChaCha20-Poly1305" | ...
+    scheme: string              // (asymmetric only) "ecdsa" | "shnorr" | "eddsa" | ...
+    capabilities: string[]     // (asymmetric only) "single-sig" | "multisig" | "multisig2of3" | "threshold-multisig" | "lightning-commitment" | ...
+  }
+  key?: {                       // (optional) additional key capabilities and limitations specifications
+    keyList?: string[]          // (derivations only) "m/44'/0'/0'/{0-1}/{*}" | "key-{0-10}" | "aes-master/slot-{1-10}" ...
+  }
+  context?: {                   // (optional) only for context sensitive account types, like most hardware wallets
+    chain?: string              // "btc" | "eth" | ....
+    network?: string            // "mainnet" | "testnet"
+    maxPayloadSize?: number     // limit the payload size, represented in bytes
+    metadata?: any              // Additional parameters
+  }
+}
+```
+
+CapabilityDescriptor is often used as an array, especially from [***group.crypto.account***](standards#groupcryptoaccount)
+
+Example for an Hardware Wallet Bitcoin only:
+``` javascript
+const HardwareWalletBtcOnlyDescriptor = [
+  {
+    algorithm: { mode: "secp256k1", scheme: "ecdsa", capabilities: ["single-sig", "message-signing", "multisig2of3"]},
+    key: { keyList: ["m/44'/0'/0'/{0-1}/{0-*}", "m/49'/0'/0'/{0-1}/{0-*}", "m/84'/0'/0'/{0-1}/{0-*}", "m/48'/0'/0'/2'/{0-1}/{0-*}"]},
+    context: { chain: "btc", network: "mainnet", maxPayloadSize: 32768}
+  },
+  {
+    algorithm: { mode: "secp256k1", scheme: "schnorr", capabilities: ["single-sig", "multisig", "BIP-340", "BIP-341", "BIP-342"]},
+    key: { keyList: ["m/86'/0'/0'/{0-1}/{0-*}"]},
+    context: { chain: "btc", network: "mainnet", maxPayloadSize: 32768, metadata: { bip: ["BIP-340","BIP-341","BIP-342"]}}
+  }
+]
+```
+---
+
+Example for an Hardware Wallet Multi-coin (Bitcoin, Ethereum, Solana):
+``` javascript
+const HardwareWalletMultiCoinDescriptor = [
+  {
+    algorithm: { mode: "secp256k1", scheme: "ecdsa", capabilities: ["single-sig"]},
+    key: { keyList: ["m/44'/60'/0'/0/{0-*}"]},
+    context: { chain: "eth", network: "mainnet", maxPayloadSize: 32768}
+  },
+  {
+    algorithm: { mode: "ed25519", scheme: "eddsa", capabilities: ["single-sig"]},
+    key: { keyList: ["m/44'/501'/{0-*}'/0'"]},
+    context: { chain: "sol", network: "mainnet", maxPayloadSize: 32768}
+  }.join(HardwareWalletBtcOnlyDescriptor)
+]
+```
+---
+
+Example for a Mnemonic Wallet:
+``` javascript
+const MnemonicWalletMultiCoinDescriptor = [
+  {
+    algorithm: { mode: "secp256k1", scheme: "ecdsa", capabilities: ["single-sig", "multisig", "btc-p2wsh-commitment"]},
+    key: { keyList: ["m/{*}"]}
+  },
+  {
+    algorithm: { mode: "secp256k1", scheme: "schnorr", capabilities: ["single-sig", "multisig", "btc-threshold-musig", "adaptor-conditional", "btc-lightning-commitment", "btc-dlc-oracle"]},
+    key: { keyList: ["m/{*}"]}
+  },
+  {
+    algorithm: { mode: "ed25519", scheme: "eddsa", capabilities: ["single-sig"]},
+    key: { keyList: ["m/{*}"]}
+  }
+]
+```
+---
+
+Example for EU Governative Smart Card  
+If you are wondering, yes, with Orivon it would support Solana right away (look at algorithm *ed25519*)
+``` javascript
+const SmartCartDescriptor = [
+  {
+    algorithm: { mode: "RSA", scheme: "pkcs1v15", capabilities: ["single-key", "key-wrap", "cert-signature"]},
+    key: { keyList: ["slot-{0-1}"]},
+    context: { chain: "eIDAS", network: "EU", maxPayloadSize: 4096, metadata: { hash: ["SHA-256", "SHA-384"], maxKeySize: 4096 }}
+  },
+  {
+    algorithm: { mode: "RSA", scheme: "pss", capabilities: ["single-key", "key-wrap", "cert-signature"]},
+    key: { keyList: ["slot-{0-1}"]},
+    context: { chain: "eIDAS", network: "EU", maxPayloadSize: 4096 , metadata: { hash: ["SHA-256", "SHA-384"], maxKeySize: 4096 }}
+  },
+  {
+    algorithm: { mode: "secp256r1", scheme: "ecdsa", capabilities: ["single-key", "key-wrap", "cert-signature"]},
+    key: { keyList: ["slot-{2-3}"]},
+    context: { chain: "eIDAS", network: "EU", maxPayloadSize: 2048, metadata: { hash: ["SHA-256"] }}
+  },
+  {
+    algorithm: { mode: "secp384r1", scheme: "ecdsa", capabilities: ["single-key", "key-wrap", "cert-signature"]},
+    key: { keyList: ["slot-{2-3}"]},
+    context: { chain: "eIDAS", network: "EU", maxPayloadSize: 2048, metadata: { hash: ["SHA-384"] }}
+  },
+  {
+    algorithm: { mode: "ed25519", scheme: "eddsa", capabilities: ["single-key", "key-wrap", "cert-signature"]},
+    key: { keyList: ["slot-4"]},
+    context: { chain: "eIDAS", network: "EU", maxPayloadSize: 2048, metadata: { hash: ["SHA-512"] }}
+  },
+  {
+    algorithm: { mode: "AES-GCM", scheme: "", capabilities: ["data-encryption", "key-wrap"]},
+    key: { keyList: ["aes-master/slot-{0-1}"] },
+    context: { chain: "eIDAS", network: "EU", maxPayloadSize: 16384, metadata: { maxKeySize: 256 }}
+  }
+]
+```
+---
+
+Example for an KeepassXC
+``` javascript
+const KeepassXCDescriptor = [
+  {
+    algorithm: { mode: "AES-GCM", scheme: "", capabilities: ["database-encryption", "file-encryption", "key-derivation"]},
+    key: { keyList: ["master-password", "keyfile", "argon2id/slots-{0-10}"] },
+    context: { maxPayloadSize: 16384}
+  },
+  {
+    algorithm: { mode: "ChaCha20-Poly1305", scheme: "", capabilities: ["database-encryption", "file-encryption", "key-derivation"]},
+    key: { keyList: ["master-password", "keyfile", "argon2id/slots-{0-10}"] },
+    context: { maxPayloadSize: 16384}
+  },
+  {
+    algorithm: { mode: "HMAC-SHA1", scheme: "", capabilities: ["challenge-response"] },
+    key: { keyList: ["slot-{1-2}"] },
+    context: { metadata: { supportedHardware: ["YubiKey", "PKCS#11 Smart Card"] } }
+  }
+]
+```
+---
+
+Example for a Custodial Binance Account:
+``` javascript
+const BinanceCustodialWalletDescriptor = {
+  {
+    algorithm: { mode: "virtual", scheme: "", capabilities: ["btc-transaction"] },
+    key: { keyList: ["address-{1-10}"] },
+    context: { chain: "btc", network: "mainnet", metadata: { provider: "Binance", apiVersion: "v5" } }
+  }
+}
+```
+---
+
+Thousand of examples like this could be made, but it should be enough to explain the potential

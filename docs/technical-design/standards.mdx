@@ -1,0 +1,153 @@
+---
+sidebar_position: 1
+pagination_next: technical-design/orivon-core
+---
+
+# Orivon standards
+
+Around the strong core part of orivon-runtime, the rest are just standards built on top of it, making up the structure of how these modules works and communicate together in a safe manner
+
+It's the Client job to ensure that the safety and correctness of a standard is correctly applied by modules
+
+Here I will show you some of these standards:
+
+
+## General Orivon Group Modules
+
+### group.net.dns
+
+Example modules:  
+*domains.dns.ens*  
+*web3.dns.arweave*  
+*icann.dns.eu-gov*
+
+#### Requires ->  
+
+- **Module.resolveDomain(domain) | JSON Object**
+
+- **Module.supportedDomains() | Array\<string\>**
+
+#### Provides access to ->
+
+- **DNS.resolve(domain, retries, fallbacks) | JSON Object**  
+Resolve a DNS using the first capable module by priority level  
+***domain***: domain to resolve | *String*  
+***retries***: amount of retries before giving up | *Number*  
+***fallbacks***: amount of fallbacks with different modules before giving up | *Number*  
+***RETURN***: *JSON Object containing successful module id and DNS Records*
+
+
+- **DNS.setModulePriority(module, level) | void**  
+Set priority level for a module   
+
+- **DNS.getModules() | Array\<\{module, level\}\>**  
+
+- **DNS.isSupported(domain) | Boolean**  
+
+- **DNS.supportedDomains() | Array\<string\>**  
+
+---
+
+### group.net.data-gather  
+
+Example modules:  
+*ipfs.data-gather.tech*  
+*web3.data-gather.arweave*  
+*torrent.data-gather.utorrent*  
+*ethereum.data-gather.orivon*
+
+#### Requires ->  
+
+- **Module.gatherFile(domain) | JSON Object**
+
+- **Module.supportedGatherings() | Array\<string\>**
+
+#### Provides access to ->
+
+- **DG.getFile(path, method) | Stream\<bytes\>**
+
+- **DG.setModulePriority(string, number) | void**
+
+- **DG.getModules | Array\<\{module, level\}\>**
+
+- **DG.supportedMethods | Array\<string\>**
+
+---
+
+### group.net.web3score  
+
+Example modules:  
+*score.web3score.orivon*  
+*score.web3score.wowseoweb3*  
+*torrent.data-gather.utorrent*  
+*ethereum.data-gather.orivon*
+
+#### Requires ->
+
+- **Module.getWeb3Score(string) | JSON Object**
+
+#### Provides access to ->
+
+- **WS.getScore(string) | JSON Object**
+
+- **WS.setModulePriority(string, number) | void**
+
+- **WS.getModules | Array\<\{module, level\}\>**
+
+---
+
+### group.crypto.account
+
+You can look at Accounts as a compatibility layer between a signing method and whatever crypto/system it is compatible with
+
+Some examples of Account modules which could be connected to that group are:  
+*hardware-wallet.crypto.keystone*  
+*mnemonic.crypto.orivon*  
+*smart-card.crypto.eu-gov*
+
+Connected modules exposes getAccountDescriptor() which allows the caller to know what encryption systems that account type supports, so that implementations (like *group.crypto.btc0-1* or *group.crypto.eth0-1*) can know if they are compatible at all in the first place and for what specific operations they are compatible with
+
+For that manner an array of [***CapabilityDescriptor***](/docs/technical-design/orivon-objects#capabilitydescriptor) will be shared by each account type to inform about everything it is capable of and what not.  
+Such information is going to be used from modules like ***group.crypto.address-book***, ***group.crypto.btc0-1***, ***group.crypto.eth0-1*** etc...
+
+#### Requires ->
+
+- **Module.accountTypes() | JSON (*CapabilityDescriptor* included)**
+
+- **Module.createAccount(type, options) | JSON**
+
+- **Module.accountList() | Array\<account\>**
+
+- **Module.getAccountDescriptor(accountId) | JSON\<\[CapabilityDescriptor\]\>**
+
+- **Module.accountOperate(accountId, payload, options) | JSON**
+
+- **Module accountGetKey(accountId, path) | bytes**
+
+#### Provides access to ->
+
+- **Account.accountTypes() | JSON (*CapabilityDescriptor* and Module Id included)**
+
+- **Account.createAccount(moduleId, type, options)**
+
+- **Account.accountList() | Array\<\{account, moduleId\}\>**
+
+- **Account.getAccountDescriptor(moduleId, accountId) | JSON\<\[CapabilityDescriptor\]\>**
+
+- **Account.accountOperate(moduleId, accountId, payload, options) | JSON**
+
+- **Account accountGetKey(moduleId, accountId, path) | bytes**
+
+- **Account.setModulePriority(string, number) | void**
+
+- **Account.getModules | Array\<\{module, level\}\>**
+
+---
+
+TODO's:  
+***group.crypto.btc0-1*** Effectively interact with group.crypto.account to implement bitcoin  
+***group.crypto.eth0-1*** Effectively interact with group.crypto.account to implement ethereum  
+***group.crypto.address-book*** Interact with supported crypto groups to print out an address book and interact with these  
+***group.crypto.view-only-address-book***  Interact with supported crypto groups to print out a view only address book  
+***group.network.btc-0-1*** Implement a standard of access functions to Bitcoin Network  
+***group.network.eth-0-1*** Implement a standard of access functions to Ethereum Network  

@@ -24,7 +24,7 @@ Every account may represent a Mnemonic, an Hard wallet account or anything else 
 At transaction point these Apps may want to open a GUI to interact with the user before completing the operation  
 Every account type exposes various functions, the more of these effective functions are exposed, and more this account type will be integrable with as much crypto as possible (relative standards yet to be defined)
 
-Depending on user settings and [Web3 Score](web3-score), an account may connect automatically to visited web3sites  
+Depending on user settings and [Web3 Score](/docs/implementations/web3-score), an account may connect automatically to visited web3sites  
 
 ### Layer 2: Crypto
 

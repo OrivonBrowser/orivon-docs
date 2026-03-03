@@ -31,7 +31,7 @@ The idea of a *truly web3* Browser looks like inevitable for the Web3 future and
 
 We are aware that our statements sound impressive, but once you learn more about Orivon you may start agreeing with these as well.
 
-Feedbacks, questions, [discussions](https://orivonstack.com) or critiques are part of project for improvement and general web3 community knowledge sharing, feel free to share your opinion trough any of [our channels](more/our-channels)
+Feedbacks, questions, [discussions](https://discord.gg/DuRg87MvgD) or critiques are part of project for improvement and general web3 community knowledge sharing, feel free to share your opinion trough [Discord](https://discord.gg/DuRg87MvgD) or any of [our channels](more/our-channels)
 
 
 ### Web3 problems
@@ -48,21 +48,21 @@ But it's understandable, technologies takes a while until *a way* to make them e
 
 Furthermore there are some other reasons preventing Web3 from getting worldwide widespread:
 
-- **Peoples thinks it hasn't practical uses,** and we can't blame them for it, only tech users can understand web3 incredible value, when experiencing web3 will be easy for everyone, then everyone will understand once for all how game-changing it is
+- **Peoples thinks it hasn't practical uses,** and we can't blame them for it, only tech users can understand web3 incredible value. When experiencing web3 will be easy for everyone, then everyone will understand once for all how game-changing it is
   
 
-- **We use Web2 solutions to access Web3 protocols,** you open uniswap.com, you are using a centralized DNS, then you get site data from the Uniswap host (hoping it's not compromised), then maybe it goes well
+- **We use Web2 solutions to access Web3 protocols,** you open uniswap.com, you are using a centralized DNS and gather data from a central host (hoping it's not compromised)
 
   Big public can't look at Web3 seriously if it's current state is like this, we need to go truly Web3
 
 - **Going truly web3 is for technicals,** running interfaces locally, installing programs (and for each of them set up a wallet), running nodes, installing trustless DEX'es like Bisq and all of these things are made mostly by technical users
 
   For each web3 operation *download install open setup*... what if we improve it to just *open*?  
-  Improving it would allow the widespread adoption of Web3 socials, DeFi, Web3sites, and Web3 technologies in general
+  Improving it would allow the widespread adoption of Web3 socials, DeFi, Web3sites and Web3 technologies in general
 
 - **There aren't established ways to access web3 resources:** *how do I find web3 things? how do I know if its actually trustless? is that even safe?* These questions causes uncertainty and insecurity feeling on peoples
 
-  That's why we need a straightforward place to access and search valid web3 resources
+  We need an established method to access and search valid web3 resources
 
 
 The fact is, we all know that these problems, along with Web2 solutions to access Web3 protocols, are just temporary and are going to be replaced when web3 community will come up with a better solution, but the solution is right here, it's called Orivon, and aims to solve exactly all of that
@@ -74,7 +74,7 @@ The fact is, we all know that these problems, along with Web2 solutions to acces
 
 Orivon gives a solution willing to change the entire Web3 Experience, both for users and developers
 
-**Users** will benefit from an huge UX improvement, easy [search](#web3-search) and fast use of different web3 clients just by opening a url (ex. mastodon.eth), easily know how much trustless and safe the current visited site or the current operation is, eventually with a privacy indicator ([Web3 Scores](./implementations/web3-score)) 
+**Users** will benefit from an huge UX improvement, easy [search](#web3-search) and fast use of different web3 clients just by opening a url (ex. mastodon.eth), easily know how much trustless and safe the current visited site or the current operation is, eventually with a privacy indicator ([Web3 Scores](/docs/implementations/web3-score)) 
 
 On-fly web3 things support will make it a lot seamless and straightforward for the user
 
@@ -94,9 +94,9 @@ Building a Web3site following the Orivon model for a dev means building within a
 It's the moment to dive deep into how Orivon actually works and how it aims to solve all of this problems and drastically improve the User Experience
 
 Please note that the Orivon Development process has yet to begin  
-If you want to get Involved and reserve a place inside Orivon and our DAO please check the [**Get involved**](involving) page
+If you want to get Involved and reserve a place inside Orivon and our [DAO](/docs/dao-plan) please check the [**Get involved**](/docs/involving) page
 
-More implementation details of specific components are available at [**Implementations**](category/implementations)  
+More implementation details of specific components are available at [**Implementations**](/docs/implementations/dashboard-app)  
 But first, if you already didn't, take a look at the main features
 
 ### Applications <small style={{ display: "block", marginTop: 0, fontWeight: "normal", fontSize: "0.50em", lineHeight: 1.2, marginBottom: "-3em"}}> Also called special extensions </small>
@@ -104,16 +104,16 @@ But first, if you already didn't, take a look at the main features
 Web3 is not just about supporting IPFS or a decentralized domain, it's about owning capabilities, other than IPFS we may want to use Arweave, Torrent, the Ethereum blockchain etc... Here's where the Applications system comes
 
 Almost every component is possibly extended or modified by Apps, they can be installed as easily as browser extensions or ran on-fly opening a url, and they goes for:
-- **Dashboard:** The application used to show up the Dashboard in new tabs of the browser - [*Orivon Dashboard*](implementations/dashboard-app)
-- **DNS resolution** - [*details*](implementations/dns-resolution)
-- **Data Gathering** (ex. IPFS, Arweave, Blockchain etc...) - [*details*](implementations/data-gathering)
+- **Dashboard:** The application used to show up the Dashboard in new tabs of the browser - [*Orivon Dashboard*](/docs/implementations/dashboard-app)
+- **DNS resolution** - [*details*](/docs/implementations/dns-resolution)
+- **Data Gathering** (ex. IPFS, Arweave, Blockchain etc...) - [*details*](/docs/implementations/data-gathering)
 - **Accounts:** an account may be based on mnemonic, hardware wallet, abstracted or anything else by App logic
 - **Crypto:** implementing a new crypto like Monero, BSQ Tokens, etc... 
 - **Address list:** implementing a new address list out of an implemented ***Crypto*** for all compatible ***Accounts***, it could be the default address list itself, or vanity address generator, or anything else by app logic
 - **Network** (ex. implementing access for Bitcoin network, Tor network, IPFS Node, Torrent, Bisq pricenode etc...)
 - **Web3 Score provider:** one or more providers can provide the data for the [trustlessity and security scores](#trustlessity--security-score) during the user activity
 
-The [*Wallet system*](implementations/wallet-system) component shares an interesting point for DeFi users, which are DApps for Crypto that has never been trustlessly possible from a website: Bitcoin, Monero, ZCash, BSQ etc...  
+The [*Wallet system*](/docs/implementations/wallet-system) component shares an interesting point for DeFi users, which are DApps for Crypto that has never been trustlessly possible from a website: Bitcoin, Monero, ZCash, BSQ etc...  
 
 That's going to open doors for DApps at Atomic Swaps, Escrow transactions with multisig or time-lock and way more
 
@@ -138,9 +138,9 @@ Furthermore user needs to know the safety of the Operation he is performing, may
 
 These 2 scores improves the user sense of safety dramatically, it's a game changer to bring huge trust into the Web3 field, with honest and realistic evaluations playing a key role on that
 
-[So, who gives the evaluations?](implementations/web3-score)
+[So, who gives the evaluations?](/docs/implementations/web3-score)
 
-[How evaluations system works?](implementations/web3-score)
+[How evaluations system works?](/docs/implementations/web3-score)
 
 
 ### Advanced WASM: Programs on-fly
@@ -170,20 +170,20 @@ That means that bitcoind of [bitcoin-core](https://github.com/bitcoin/bitcoin) w
 
 Orivon will feature a store specifically for [Applications](#applications--also-called-special-extensions-) which expands the browser capabilities
 
-As the [Web3 Score](./implementations/web3-score), if someone else comes before us on building a better store with suitable Trustlessity, Security and Privacy, we will adopt that as default
+As the [Web3 Score](/docs/implementations/web3-score), if someone else comes before us on building a better store with suitable Trustlessity, Security and Privacy, we will adopt that as default
 
 Otherwise, we will build it
 
 Implementation details of a store aren't still been made, to contribute propose in our [docs repo](https://github.com/OrivonBrowser/orivon-docs) or connect in our [discord](https://discord.gg/DuRg87MvgD)  
 Anyway we plan it to have the following foundations: 
 
-- The store should prioritize the results with best [Web3 Scores](implementations/web3-score) based on browser Providers
+- The store should prioritize the results with best [Web3 Scores](/docs/implementations/web3-score) based on browser Providers
 - The entire store should be considered enough Trustless, Secure and Privacy conserving
 - UI and Features inspired by F-Droid
 
 #### Web3 Search
 
-Web3 Search engines will be already integrated, possibly engines mixing Web2 and Web3 with a focus on prioritizing [Web3 Score](implementations/web3-score)
+Web3 Search engines will be already integrated, possibly engines mixing Web2 and Web3 with a focus on prioritizing [Web3 Score](/docs/implementations/web3-score)
 
 We have some example candidates which we may opt to collaborate with in the future  
 These are: [web3compass](https://www.web3compass.net/) and [0xapps](https://0xapps.com/), but as right now, take them just as examples
@@ -204,7 +204,7 @@ DDOC can be seen as an additional security layer after HTTPS, it serves to verif
 
 It prevents incidents caused by remote server hacking and assures Data Integrity  
 
-DDOC requirement *can* be meet by conventional Hosts/IP data gathering (see [Native DDOC Support](./implementations/native-ddoc-specs)), or by design from protocols (like IPFS)
+DDOC requirement *can* be meet by conventional Hosts/IP data gathering (see [Native DDOC Support](/docs/implementations/native-ddoc-specs)), or by design from protocols (like IPFS)
 
 That's the doorway to let Web3 Score verifications possible, since an identification string will be always available when DDOC is meet, lack of DDOC makes site data unpredictable, so there is no way to declare their respective safety
 
@@ -229,6 +229,6 @@ Orivon wants to make a Browsing and Web system willing change the entire Web3 ec
 
 It does not matter what your skills currently are, what matter most is that you're willing to commit your efforts into supporting Orivon  
 
-There are very valuable roles which you can take, once you get involved all of your efforts will be remembered and paid out with a fair amount of governance tokens into the Orivon DAO once it will be finally launched
+There are very valuable roles which you can take, once you get involved all of your efforts will be remembered and paid out with a fair amount of governance tokens into the [Orivon DAO](/docs/dao-plan) once it will be finally launched
 
-More details for [**Getting involved**](involving) are in the following page, hop in!
+More details for [**Getting involved**](/docs/involving) are in the following page, hop in!

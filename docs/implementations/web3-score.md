@@ -13,9 +13,9 @@ Orivon will choose by default the one with the highest Trustless and Security sc
 
 We got to understand that Trustlessity and Security scores aren't completely mathematically predictable concepts, they are relative and needs an human or intelligent evaluation: needs to understand the code, research the actual decentralization backing it, think about the game theory realistic risks etc...
 
-The ideal Web3 Score provider would be a reputable enough decentralized DAO or provable system which is extremely secure and accurate on it's work of scoring  
+The ideal Web3 Score provider would be a reputable enough decentralized [DAO](/docs/dao-plan) or provable system which is extremely secure and accurate on it's work of scoring  
 
-If no one comes before us, we will create our own provider, eventually backed by our DAO  
+If no one comes before us, we will create our own provider, eventually backed by our [DAO](/docs/dao-plan)  
 Any suitable provider will be integrated too, and if it happens to be better than Orivon, will replace it at all
 
 ## How evaluations system works?
@@ -34,9 +34,9 @@ The highest level means that it is reasonably completely trustless, the lowest m
 <details>
 <summary><strong>Trustlessity Levels for Websites</strong></summary>
 
-**Level 1**: It’s a standard website, without [DDOC](../orivon#ddoc) (Automatically detected)  
+**Level 1**: It’s a standard website, without [DDOC](/docs/orivon#ddoc) (Automatically detected)  
 
-**Level 2**: The site supports [DDOC](../orivon#ddoc) (Automatically detected)  
+**Level 2**: The site supports [DDOC](/docs/orivon#ddoc) (Automatically detected)  
 
 **Level 3**: The site root is open source and won’t execute any external code without the user willingly consenting it and being aware of its risk/trustlessness  
 
