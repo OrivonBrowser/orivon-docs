@@ -75,13 +75,13 @@ Permissions grants are the only systems modules relies on to work together
 Exists 3 kinds of Modules:
 
 **Library Module**:  
-Library modules are just modules which other modules can be connected to statically, that means that Library modules doesn't keep an independent state and they can't run as services independently. Library modules are very memory efficient.  
-They can have access to all of *OS Grants* and *Permissions* grants only towards other Library modules  
+Library modules are just modules which other modules can be connected to statically, that means that Library modules doesn't keep an independent state and they can't run as services independently. Library modules are very resource efficient.  
+They can have access to all of *OS Grants*, and *Permissions* grants only towards other Library modules  
 **Id** (example): *lib.math.orivon*
 
 **Module**:  
 Modules are the main place where most Orivon developers will make their app backend logic, they always run as services  
-They can have access to all of *OS Grants* and *Permission* grants towards any other module  
+They can have access to all of *OS Grants*, and *Permission* grants towards any other modules  
 **Id** (example): *bitcoin.node.orivon*
 
 **Group Module**:  
@@ -89,4 +89,30 @@ Group Modules serves to group multiple Modules together and they are merely a st
 Group modules has granted the access to a list of Modules and accesses a known set of functions 
 **Id** (example): *group.network.btc-1-0*
 
-Then ***standards*** are the key to make modules work well all together in a safe manner
+Then [***standards***](/docs/technical-design/standards) are the key to make modules work well all together in a safe manner
+
+
+### Module Lifecycle
+
+A module lifecycle defines how a module is managed during runtime:
+
+- **Start**: A module is started when it is injected and granted the necessary permissions
+- **Stop**: A module can be stopped and removed at any time by the client
+- **Restart**: If a module crashes or fails, the client is responsible for deciding whether to restart it or handle the failure
+- **Crash handling**: orivon-runtime should isolate module crashes to prevent them from affecting other running modules
+
+*This section is a work in progress and will be expanded further*
+
+
+### Module Communication
+
+Modules communicate with each other exclusively through the permissions system.
+
+When a module is granted permission to access another module's exposed functions, it can call those functions directly via WIT-defined interfaces provided by the WebAssembly Component Model.
+
+There are currently 3 proposed communication patterns to be defined further:
+- **Direct function calls** via WIT interfaces (primary method)
+- **Event-based messaging** between modules (to be defined)
+- **Shared state via controlled access** (to be defined)
+
+*This section is a work in progress and will be expanded further*
