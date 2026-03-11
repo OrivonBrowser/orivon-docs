@@ -36,7 +36,6 @@ Resolve a DNS using the first capable module by priority level
 ***fallbacks***: amount of fallbacks with different modules before giving up | *Number*  
 ***RETURN***: *JSON Object containing successful module id and DNS Records*
 
-
 - **DNS.setModulePriority(module, level) | void**  
 Set priority level for a module   
 
@@ -78,9 +77,7 @@ Example modules:
 
 Example modules:  
 *score.web3score.orivon*  
-*score.web3score.wowseoweb3*  
-*torrent.data-gather.utorrent*  
-*ethereum.data-gather.orivon*
+*score.web3score.wowseoweb3*
 
 #### Requires ->
 
@@ -151,3 +148,35 @@ TODO's:
 ***group.crypto.view-only-address-book***  Interact with supported crypto groups to print out a view only address book  
 ***group.network.btc-0-1*** Implement a standard of access functions to Bitcoin Network  
 ***group.network.eth-0-1*** Implement a standard of access functions to Ethereum Network  
+
+---
+
+## Missing Standards (TODO)
+
+The following group standards are not yet defined but will be needed as the project develops:
+
+### group.net.connection
+Handles how modules open, manage and close network connections (TCP, UDP, WebSocket etc...)
+
+*To be defined*
+
+---
+
+### group.storage
+Handles how modules persist data locally in a sandboxed and secure way
+
+*To be defined*
+
+---
+
+### group.ui
+Handles how modules interact with the browser frontend — rendering UI, sending events, receiving user input
+
+*To be defined*
+
+---
+
+### group.net.ddoc
+Standard for DDOC verification at the module level. DDOC is described in the implementations section but has no group standard defined yet.
+
+*To be defined*
