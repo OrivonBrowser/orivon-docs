@@ -14,6 +14,8 @@ Here I will show you some of these standards:
 
 ## General Orivon Group Modules
 
+Groups serves to grant permission to work effectively with multiple modules without exposing them directly, while still allowing them to be used together
+
 ### group.net.dns
 
 Example modules:  
@@ -54,6 +56,7 @@ Example modules:
 *web3.data-gather.arweave*  
 *torrent.data-gather.utorrent*  
 *ethereum.data-gather.orivon*
+*https.data-gather.orivon*
 
 #### Requires ->  
 
@@ -63,7 +66,7 @@ Example modules:
 
 #### Provides access to ->
 
-- **DG.getFile(path, method) | Stream\<bytes\>**
+- **DG.getFile(path, method, options) | Object{ Stream\<bytes\> data, bool DDOC }**
 
 - **DG.setModulePriority(string, number) | void**
 
@@ -141,22 +144,25 @@ Such information is going to be used from modules like ***group.crypto.address-b
 
 ---
 
-TODO's:  
-***group.crypto.btc0-1*** Effectively interact with group.crypto.account to implement bitcoin  
-***group.crypto.eth0-1*** Effectively interact with group.crypto.account to implement ethereum  
-***group.crypto.address-book*** Interact with supported crypto groups to print out an address book and interact with these  
-***group.crypto.view-only-address-book***  Interact with supported crypto groups to print out a view only address book  
-***group.network.btc-0-1*** Implement a standard of access functions to Bitcoin Network  
-***group.network.eth-0-1*** Implement a standard of access functions to Ethereum Network  
-
----
-
-## Missing Standards (TODO)
+## Missing Group Standards (TODO)
 
 The following group standards are not yet defined but will be needed as the project develops:
 
+---
+
+### group.crypto.address-book  
+**And group.crypto.view-only-address-book**
+
+Print out and interact with the address book available in an account by the terms of each supported crypto group
+
+*To be defined*
+
+---
+
 ### group.net.connection
 Handles how modules open, manage and close network connections (TCP, UDP, WebSocket etc...)
+
+This group allows to prevent the grant of direct OS functions to untrusted modules while keeping effective these functionalities
 
 *To be defined*
 
@@ -169,14 +175,22 @@ Handles how modules persist data locally in a sandboxed and secure way
 
 ---
 
-### group.ui
-Handles how modules interact with the browser frontend — rendering UI, sending events, receiving user input
+### group.io (input output)
+Handles how modules interact with further input clients (browser, cli etc...), it may be rendering UI, sending events, receiving user input
+
+Example sub groups:  
+*group.io.gui*  
+*group.io.textual*
 
 *To be defined*
 
 ---
 
-### group.net.ddoc
-Standard for DDOC verification at the module level. DDOC is described in the implementations section but has no group standard defined yet.
+### Others TODO
 
-*To be defined*
+TODO's:  
+
+***group.crypto.btc0-1*** Effectively interact with group.crypto.account to implement bitcoin  
+***group.crypto.eth0-1*** Effectively interact with group.crypto.account to implement ethereum  
+***group.network.btc-0-1*** Implement a standard of access functions to Bitcoin Network  
+***group.network.eth-0-1*** Implement a standard of access functions to Ethereum Network  
