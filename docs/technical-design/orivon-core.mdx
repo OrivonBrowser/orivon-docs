@@ -10,34 +10,36 @@ It implements and guarantees that the official *Orivon standards* are safely and
 
 *orivon-core* will be the component directly embedded inside the Orivon Browser
 
+
 ## Responsibilities
 
-*orivon-core* acts as the bridge between *orivon-runtime* and the Orivon Browser. Its main responsibilities are:
+*orivon-core* acts as the bridge between *orivon-runtime* and other standards Orivon implementations (such as Orivon Browser or CLI/Embedded).
+
+Its main responsibilities are:
 
 - **Standards enforcement**: Ensuring that all modules follow the official Orivon standards correctly
-- **Module management**: Handling the injection, removal and lifecycle of modules on behalf of the browser
+- **Module management**: Handling the injection, removal and lifecycle of modules on behalf of the programs
 - **Permission validation**: Verifying that permission grants between modules are valid and safe before applying them
-- **Browser communication**: Exposing a clean API for the browser to interact with the underlying runtime
+- **Communication**: Exposing a clean API for programs to interact with the underlying runtime
+
 
 ## Relationship to orivon-runtime
 
-*orivon-runtime* is the low-level core — it runs WASM modules and manages permissions at a technical level.
+*orivon-runtime* is the low-level core, it runs WASM modules and manages permissions at a technical level.
 
-*orivon-core* sits on top of it and adds the Orivon-specific logic — it is the component that knows about Orivon standards, enforces correct behavior, and provides a safe and structured way for the browser to use the runtime.
+*orivon-core* sits on top of it and adds the Orivon-specific logic, it is the component that knows about Orivon standards, enforces correct behavior, and provides a safe and structured way for the browser to use the runtime.
 
-Think of it like this:
-- *orivon-runtime* = the engine
-- *orivon-core* = the car that uses the engine correctly
+*orivon-runtime* = the engine
+*orivon-core* = the car that uses the engine correctly
+
 
 ## API (To be defined)
 
-The full API of *orivon-core* that the browser will use is still being designed.
+The full API of *orivon-core* that client programs using *orivon-core* will use is still to be designed.
 
 It is expected to expose high-level functions such as:
 - Loading and managing modules
-- Resolving domains via `group.net.dns`
-- Gathering data via `group.net.data-gather`
-- Accessing wallet and crypto functions via `group.crypto.account`
-- Retrieving Web3 Scores via `group.net.web3score`
+- Access to specific modules functions (such as `group.net.dns`, `group.net.data-gather`, `group.crypto.account`, `group.net.web3score` etc...)
+
 
 *This section will be expanded as the design matures*
