@@ -75,13 +75,13 @@ Permissions grants are the only systems modules relies on to work together
 Exists 3 kinds of Modules:
 
 **Library Module**:  
-Library modules are just modules which other modules can be connected to statically, that means that Library modules doesn't keep an independent state and they can't run as services independently. Library modules are very memory efficient.  
-They can have access to all of *OS Grants* and *Permissions* grants only towards other Library modules  
+Library modules are just modules which other modules can be connected to statically, that means that Library modules doesn't keep an independent state and they can't run as services independently. Library modules are very resource efficient.  
+They can have access to all of *OS Grants*, and *Permissions* grants only towards other Library modules  
 **Id** (example): *lib.math.orivon*
 
 **Module**:  
 Modules are the main place where most Orivon developers will make their app backend logic, they always run as services  
-They can have access to all of *OS Grants* and *Permission* grants towards any other module  
+They can have access to all of *OS Grants*, and *Permission* grants towards any other modules  
 **Id** (example): *bitcoin.node.orivon*
 
 **Group Module**:  
@@ -89,7 +89,8 @@ Group Modules serves to group multiple Modules together and they are merely a st
 Group modules has granted the access to a list of Modules and accesses a known set of functions 
 **Id** (example): *group.network.btc-1-0*
 
-Then ***standards*** are the key to make modules work well all together in a safe manner
+Then [***standards***](/docs/technical-design/standards) are the key to make modules work well all together in a safe manner
+
 
 ### Module Lifecycle
 
@@ -102,7 +103,6 @@ A module lifecycle defines how a module is managed during runtime:
 
 *This section is a work in progress and will be expanded further*
 
----
 
 ### Module Communication
 
@@ -116,16 +116,3 @@ There are currently 3 proposed communication patterns to be defined further:
 - **Shared state via controlled access** (to be defined)
 
 *This section is a work in progress and will be expanded further*
-
----
-
-### Module Versioning
-
-Module IDs currently follow the format: `category.type.author` (example: `bitcoin.node.orivon`)
-
-This format does not include versioning. As the project matures, a versioning strategy will need to be defined to handle:
-- Module updates without breaking dependent modules
-- Multiple versions of the same module running simultaneously
-- Dependency resolution between modules
-
-*Versioning strategy is a TODO for this design*
