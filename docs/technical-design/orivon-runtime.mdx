@@ -90,3 +90,42 @@ Group modules has granted the access to a list of Modules and accesses a known s
 **Id** (example): *group.network.btc-1-0*
 
 Then ***standards*** are the key to make modules work well all together in a safe manner
+
+### Module Lifecycle
+
+A module lifecycle defines how a module is managed during runtime:
+
+- **Start**: A module is started when it is injected and granted the necessary permissions
+- **Stop**: A module can be stopped and removed at any time by the client
+- **Restart**: If a module crashes or fails, the client is responsible for deciding whether to restart it or handle the failure
+- **Crash handling**: orivon-runtime should isolate module crashes to prevent them from affecting other running modules
+
+*This section is a work in progress and will be expanded further*
+
+---
+
+### Module Communication
+
+Modules communicate with each other exclusively through the permissions system.
+
+When a module is granted permission to access another module's exposed functions, it can call those functions directly via WIT-defined interfaces provided by the WebAssembly Component Model.
+
+There are currently 3 proposed communication patterns to be defined further:
+- **Direct function calls** via WIT interfaces (primary method)
+- **Event-based messaging** between modules (to be defined)
+- **Shared state via controlled access** (to be defined)
+
+*This section is a work in progress and will be expanded further*
+
+---
+
+### Module Versioning
+
+Module IDs currently follow the format: `category.type.author` (example: `bitcoin.node.orivon`)
+
+This format does not include versioning. As the project matures, a versioning strategy will need to be defined to handle:
+- Module updates without breaking dependent modules
+- Multiple versions of the same module running simultaneously
+- Dependency resolution between modules
+
+*Versioning strategy is a TODO for this design*
