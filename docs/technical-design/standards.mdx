@@ -143,11 +143,153 @@ Such information is going to be used from modules like ***group.crypto.address-b
 - **Account.getModules | Array\<\{module, level\}\>**
 
 ---
+### group.crypto.btc0-1
+
+Implements Bitcoin cryptographic operations for a connected account module.
+Checks account compatibility via *CapabilityDescriptor* before any operation.
+
+Example modules:  
+*bitcoin.crypto.orivon*  
+*bitcoin.crypto.sparrow*
+
+#### Requires ->
+
+- **group.crypto.account**
+
+- **Module.getAccountDescriptor(accountId) | Array\<CapabilityDescriptor\>**  
+  Must include capability: `SECP256K1_SIGN`
+
+- **Module.accountOperate(accountId, payload, options) | JSON**  
+  Used for signing operations (ECDSA / Schnorr)
+
+- **Module.accountGetKey(accountId, path) | bytes**  
+  Used to derive public keys at BIP44/49/84/86 paths
+
+#### Provides access to ->
+
+- **BTC.getAddress(accountId, type, index) | string**  
+  Derives a Bitcoin address from the account at the given index  
+  ***type***: address type | *P2PKH | P2SH-P2WPKH | P2WPKH | P2TR*  
+  ***index***: derivation index | *Number*  
+  ***RETURN***: *Bitcoin address string*
+
+- **BTC.buildTransaction(accountId, inputs, outputs, feeRate) | PSBT**  
+  Constructs an unsigned PSBT from the given UTXOs and outputs  
+  ***inputs***: UTXOs to spend | *Array\<UTXO\>*  
+  ***outputs***: recipients and amounts | *Array\<\{address, value\}\>*  
+  ***feeRate***: sat/vB | *Number*
+
+- **BTC.signTransaction(accountId, psbt) | PSBT**  
+  Signs all inputs of a PSBT using the connected account  
+  ***RETURN***: *Finalized PSBT ready for broadcast*
+
+- **BTC.isCompatible(accountId) | Boolean**  
+  Checks if the account supports the required SECP256K1_SIGN capability
+
+- **BTC.supportedAddressTypes(accountId) | Array\<string\>**  
+  Returns which address types the account is capable of using
+
+---
+
+### group.crypto.address-book
+
+Manages derived addresses across all supported crypto groups.
+Uses *CapabilityDescriptor* to determine which crypto standards an account supports.
+
+Example modules:  
+*address-book.crypto.orivon*
+
+#### Requires ->
+
+- **group.crypto.account**
+
+- **Module.getAccountDescriptor(accountId) | Array\<CapabilityDescriptor\>**
+
+- **Module.accountGetKey(accountId, path) | bytes**
+
+- Any compatible crypto group (e.g. *group.crypto.btc0-1*, *group.crypto.eth0-1*)
+
+#### Provides access to ->
+
+- **AB.getAddresses(accountId, cryptoGroupId, chain, count) | Array\<AddressInfo\>**  
+  Returns derived addresses for the given account and crypto standard  
+  ***chain***: external (receive) or internal (change) | *0 | 1*  
+  ***count***: number of addresses to return | *Number*
+
+- **AB.getNextReceiveAddress(accountId, cryptoGroupId) | AddressInfo**  
+  Returns the next unused receive address
+
+- **AB.getChangeAddress(accountId, cryptoGroupId) | AddressInfo**  
+  Returns the next unused change address
+
+- **AB.getSupportedCryptos(accountId) | Array\<string\>**  
+  Returns all crypto group IDs the account is compatible with
+
+- **AB.setLabel(ref, label) | void**  
+  Attach a human-readable label to an address or UTXO
+
+- **AB.getLabel(ref) | string**
+
+- **AB.freezeAddress(address) | void**  
+  Mark an address as non-spendable
+
+- **AB.exportDescriptors(accountId, cryptoGroupId) | \{receive: string, change: string\}**  
+  Export output descriptors for wallet backup/recovery
+
+---
+
+### group.network.btc-0-1
+
+Standard access functions for interacting with the Bitcoin network.
+Modules implementing this standard handle the actual network communication
+(Electrum servers, REST APIs, or direct P2P).
+
+Example modules:  
+*electrum.btc-network.orivon*  
+*esplora.btc-network.blockstream*  
+*mempool.btc-network.mempool-space*
+
+#### Requires ->
+
+- **Module.broadcastTransaction(rawHex) | JSON**
+
+- **Module.getUTXOs(scriptHash) | Array\<UTXO\>**
+
+- **Module.getTransaction(txid) | JSON**
+
+- **Module.estimateFees() | JSON**
+
+- **Module.getBlockHeight() | Number**
+
+#### Provides access to ->
+
+- **BNET.broadcastTransaction(rawHex) | string**  
+  Broadcasts a signed raw transaction to the Bitcoin network  
+  ***RETURN***: *txid on success*
+
+- **BNET.getUTXOs(scriptHash) | Array\<UTXO\>**  
+  Returns unspent outputs for a given script hash  
+  ***RETURN***: *Array\<\{txid, vout, value, height\}\>*
+
+- **BNET.getTransaction(txid) | JSON**  
+  Returns full transaction data including confirmation status
+
+- **BNET.estimateFees() | JSON**  
+  Returns fee estimates per confirmation target  
+  ***RETURN***: *\{fast, standard, economy, minimum\} in sat/vB*
+
+- **BNET.getBlockHeight() | Number**  
+  Returns the current best block height
+
+- **BNET.subscribeAddress(scriptHash, callback) | Subscription**  
+  Real-time notifications when a script hash receives or spends outputs
+
+- **BNET.setModulePriority(module, level) | void**
+
+- **BNET.getModules() | Array\<\{module, level\}\>**
+
 
 TODO's:  
-***group.crypto.btc0-1*** Effectively interact with group.crypto.account to implement bitcoin  
 ***group.crypto.eth0-1*** Effectively interact with group.crypto.account to implement ethereum  
-***group.crypto.address-book*** Interact with supported crypto groups to print out an address book and interact with these  
 ***group.crypto.view-only-address-book***  Interact with supported crypto groups to print out a view only address book  
-***group.network.btc-0-1*** Implement a standard of access functions to Bitcoin Network  
-***group.network.eth-0-1*** Implement a standard of access functions to Ethereum Network  
+***group.network.eth-0-1*** Implement a standard of access functions to Ethereum Network
