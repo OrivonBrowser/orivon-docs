@@ -14,6 +14,8 @@ Here I will show you some of these standards:
 
 ## General Orivon Group Modules
 
+Groups serves to grant permission to work effectively with multiple modules without exposing them directly, while still allowing them to be used together
+
 ### group.net.dns
 
 Example modules:  
@@ -36,7 +38,6 @@ Resolve a DNS using the first capable module by priority level
 ***fallbacks***: amount of fallbacks with different modules before giving up | *Number*  
 ***RETURN***: *JSON Object containing successful module id and DNS Records*
 
-
 - **DNS.setModulePriority(module, level) | void**  
 Set priority level for a module   
 
@@ -55,6 +56,7 @@ Example modules:
 *web3.data-gather.arweave*  
 *torrent.data-gather.utorrent*  
 *ethereum.data-gather.orivon*
+*https.data-gather.orivon*
 
 #### Requires ->  
 
@@ -64,7 +66,7 @@ Example modules:
 
 #### Provides access to ->
 
-- **DG.getFile(path, method) | Stream\<bytes\>**
+- **DG.getFile(path, method, options) | Object\{ Stream\<bytes1> data, bool DDOC \}**
 
 - **DG.setModulePriority(string, number) | void**
 
@@ -78,9 +80,7 @@ Example modules:
 
 Example modules:  
 *score.web3score.orivon*  
-*score.web3score.wowseoweb3*  
-*torrent.data-gather.utorrent*  
-*ethereum.data-gather.orivon*
+*score.web3score.wowseoweb3*
 
 #### Requires ->
 
@@ -143,6 +143,7 @@ Such information is going to be used from modules like ***group.crypto.address-b
 - **Account.getModules | Array\<\{module, level\}\>**
 
 ---
+
 
 ### group.crypto.btc0-1
 
