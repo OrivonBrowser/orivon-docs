@@ -143,6 +143,7 @@ Such information is going to be used from modules like ***group.crypto.address-b
 - **Account.getModules | Array\<\{module, level\}\>**
 
 ---
+
 ### group.crypto.btc0-1
 
 Implements Bitcoin cryptographic operations for a connected account module.
@@ -156,13 +157,13 @@ Example modules:
 
 - **group.crypto.account**
 
-- **Module.getAccountDescriptor(accountId) | Array\<CapabilityDescriptor\>**  
-  Must include capability: `SECP256K1_SIGN`
+- **Module.bitcoinGetDescriptor(accountId) | Array\<CryptoDescriptor\>**  
+  Returns the capabilities this crypto implementation supports
 
-- **Module.accountOperate(accountId, payload, options) | JSON**  
+- **Module.bitcoinOperate(accountId, payload, options) | JSON**  
   Used for signing operations (ECDSA / Schnorr)
 
-- **Module.accountGetKey(accountId, path) | bytes**  
+- **Module.bitcoinGetKey(accountId, path) | bytes**  
   Used to derive public keys at BIP44/49/84/86 paths
 
 #### Provides access to ->
@@ -193,8 +194,8 @@ Example modules:
 
 ### group.crypto.address-book
 
-Manages derived addresses across all supported crypto groups.
-Uses *CapabilityDescriptor* to determine which crypto standards an account supports.
+Manages derived addresses across all connected crypto groups.
+Does not know which specific cryptos exist — only interacts with whatever crypto groups are available that implement getCryptoDescriptor().
 
 Example modules:  
 *address-book.crypto.orivon*
@@ -207,12 +208,12 @@ Example modules:
 
 - **Module.accountGetKey(accountId, path) | bytes**
 
-- Any compatible crypto group (e.g. *group.crypto.btc0-1*, *group.crypto.eth0-1*)
+- Any group implementing **getCryptoDescriptor()** | *Array\<CryptoDescriptor\>*
 
 #### Provides access to ->
 
 - **AB.getAddresses(accountId, cryptoGroupId, chain, count) | Array\<AddressInfo\>**  
-  Returns derived addresses for the given account and crypto standard  
+  Returns derived addresses for the given account and crypto group  
   ***chain***: external (receive) or internal (change) | *0 | 1*  
   ***count***: number of addresses to return | *Number*
 
@@ -222,8 +223,8 @@ Example modules:
 - **AB.getChangeAddress(accountId, cryptoGroupId) | AddressInfo**  
   Returns the next unused change address
 
-- **AB.getSupportedCryptos(accountId) | Array\<string\>**  
-  Returns all crypto group IDs the account is compatible with
+- **AB.getAvailableCryptoGroups() | Array\<string\>**  
+  Returns all crypto group IDs currently connected to the address book
 
 - **AB.setLabel(ref, label) | void**  
   Attach a human-readable label to an address or UTXO
