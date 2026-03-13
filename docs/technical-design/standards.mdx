@@ -14,6 +14,8 @@ Here I will show you some of these standards:
 
 ## General Orivon Group Modules
 
+Groups serves to grant permission to work effectively with multiple modules without exposing them directly, while still allowing them to be used together
+
 ### group.net.dns
 
 Example modules:  
@@ -36,7 +38,6 @@ Resolve a DNS using the first capable module by priority level
 ***fallbacks***: amount of fallbacks with different modules before giving up | *Number*  
 ***RETURN***: *JSON Object containing successful module id and DNS Records*
 
-
 - **DNS.setModulePriority(module, level) | void**  
 Set priority level for a module   
 
@@ -54,7 +55,8 @@ Example modules:
 *ipfs.data-gather.tech*  
 *web3.data-gather.arweave*  
 *torrent.data-gather.utorrent*  
-*ethereum.data-gather.orivon*
+*ethereum.data-gather.orivon*  
+*https.data-gather.orivon*
 
 #### Requires ->  
 
@@ -64,7 +66,7 @@ Example modules:
 
 #### Provides access to ->
 
-- **DG.getFile(path, method) | Stream\<bytes\>**
+- **DG.getFile(path, method, options) | Object\{ Stream\<bytes\> data, bool DDOC \}**
 
 - **DG.setModulePriority(string, number) | void**
 
@@ -78,9 +80,7 @@ Example modules:
 
 Example modules:  
 *score.web3score.orivon*  
-*score.web3score.wowseoweb3*  
-*torrent.data-gather.utorrent*  
-*ethereum.data-gather.orivon*
+*score.web3score.wowseoweb3*
 
 #### Requires ->
 
@@ -193,19 +193,20 @@ The child modules of a crypto implementation group (e.g. *bitcoin.crypto.orivon*
   Used for signing and other crypto operations
 
 - **Module.cryptoGetKey(accountId, path) | bytes | Error**  
-  Derives a key at the given path — returns an error if the path is not allowed by the CryptoDescriptor
+  Derives a key at the given path — whether the path is valid is determined by the account or the crypto implementation module based on their supported capabilities
 
 #### Provides access to ->
 
 - **CRYPTO.getDescriptor(accountId) | Array\<CryptoDescriptor\>**  
   Returns the capabilities of this crypto implementation for a given account  
-  The website uses this to know what derivation paths and operations are available
+  The website uses this to know what derivation paths and operations are available before making any requests
 
 - **CRYPTO.operate(accountId, payload, options) | JSON**  
   Executes a crypto operation (sign, verify etc.) through the connected account
 
 - **CRYPTO.getKey(accountId, path) | bytes | Error**  
-  Returns a derived key at the given path, or an error if path is not within the allowed range defined in the CryptoDescriptor
+  Returns a derived key at the given path  
+  The error is returned by either the account or the crypto implementation if the path is not within their supported range
 
 - **CRYPTO.setModulePriority(module, level) | void**
 
@@ -234,7 +235,7 @@ Example modules:
   Used for ECDSA and Schnorr signing operations
 
 - **Module.cryptoGetKey(accountId, path) | bytes | Error**  
-  Derives keys at BIP44/49/84/86 paths — returns error if path is outside allowed range
+  Derives keys at BIP44/49/84/86 paths — error is returned by the account or the module if the path is not supported
 
 #### Provides access to ->
 
@@ -261,13 +262,11 @@ Does not know which specific cryptos exist — only interacts with groups implem
 
 The website uses ***AB.getCapabilities()*** to know what derivation paths and address types are available for a given account and crypto group, before requesting any addresses.
 
-Child modules under address-book implement specific address list strategies:
+Child modules under address-book implement specific address list strategies. The website decides which address list module to use, or it can use all available ones based on the CapabilityDescriptor.
 
 Example child modules:  
 *bitcoin.address-book.orivon* — default Bitcoin address list following BIP44/84/86  
-*vanity-ethereum.address-book.devbob* — generates vanity Ethereum addresses  
-
-The website decides which address list module to use, or it can use all available ones based on the CapabilityDescriptor.
+*vanity-ethereum.address-book.devbob* — generates vanity Ethereum addresses
 
 #### Requires ->
 
@@ -285,7 +284,7 @@ The website decides which address list module to use, or it can use all availabl
 
 - **AB.getAddress(accountId, cryptoGroupId, derivationPath) | AddressInfo | Error**  
   Returns the address at the given derivation path  
-  Returns an error if the path is not within the allowed range in the CryptoDescriptor  
+  The error is returned by either the account or the crypto implementation if the path is not within their supported range  
   ***derivationPath***: e.g. `m/84'/0'/0'/0/0` | *String*
 
 - **AB.getAvailableCryptoGroups() | Array\<string\>**  
