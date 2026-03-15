@@ -8,9 +8,13 @@ The official design documentation of Orivon Browser, a Web3 centric, trustless, 
 
 You can open an issue or a pull request to propose changes, which are always highly appreciated
 
-Anyway we advise to discuss these before on our [OrivonStack](https://orivonstack.com) Forum
+Anyway we advise to discuss these before in our [Discord](https://discord.gg/DuRg87MvgD) server on #technical-chat
 
-Otherwise talk about it into our [Discord](https://discord.gg/DuRg87MvgD) server
+### Guidelines
+
+When you write your contribution, especially when you are contributing into the Technical Design, for most decisions you take, keep a note of the reasons and explanation for each decision you make.
+
+Explaining to us with clear notes your design thinking flow boosts a lot your contribute power and are part of a quality contribution
 
 ## Installation
 
