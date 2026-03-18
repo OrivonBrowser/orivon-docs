@@ -2,6 +2,10 @@
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
+const ImplementationsDescription = 
+`Implementations Category contains the specifications of how Orivon should look like both for devs and users.  
+Its up to the Technical Design writers to correctly follow the Implementation, more details on the Internal Documentation`
+
 /**
  * Creating a sidebar enables you to:
  - create an ordered group of docs
@@ -44,8 +48,31 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: 'Implementations',
+      collapsed: true,
+      link: {
+        type: 'generated-index',
+        title: 'Implementations',
+        description: ImplementationsDescription,
+      },
+      items: [
+        'implementations/dashboard-app',
+        'implementations/dns-resolution',
+        'implementations/data-gathering',
+        'implementations/web3-score',
+        'implementations/native-ddoc-specs',
+        'implementations/wallet-system',
+      ],
+    },
+    {
+      type: 'category',
       label: 'Technical design',
       collapsed: true,
+      link: {
+        type: 'generated-index',
+        title: 'Technical design',
+        description: 'Overview of the Technical Design',
+      },
       items: [
         'technical-design/orivon-runtime',
         {
@@ -68,19 +95,6 @@ const sidebars = {
       label: 'More',
       collapsed: true,
       items: [
-        {
-          type: 'category',
-          label: 'Implementations',
-          collapsed: true,
-          items: [
-            'implementations/dashboard-app',
-            'implementations/dns-resolution',
-            'implementations/data-gathering',
-            'implementations/web3-score',
-            'implementations/native-ddoc-specs',
-            'implementations/wallet-system',
-          ],
-        },
         'more/our-channels',
         'more/mobile-note',
         'more/acknowledgements',
