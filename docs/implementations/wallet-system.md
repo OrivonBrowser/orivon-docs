@@ -25,7 +25,7 @@ Every account may represent a Mnemonic, a Hardware wallet account or anything el
 **For users:**
 When a user opens Orivon for the first time, they can add an account by installing an Account App — for example a mnemonic wallet or a hardware wallet App. Once added, that account becomes available across all compatible crypto implementations without any additional setup. The user manages all their crypto from a single account, rather than juggling separate wallets for each coin.
 
-When a Web3site requests wallet access, Orivon asks the user which account to connect, based on the user's Web3 Score settings and preferences. The account App may open a GUI to confirm the operation (for example, a hardware wallet confirmation screen).
+When a Web3site requests wallet access, the user chooses which address list to connect to the site — for example their default Bitcoin address list or a vanity Ethereum address list. This way the user has full control over exactly which addresses the site has access to. How Orivon handles multiple cryptos connected to the same site at once is still an open discussion — possible approaches include the browser guessing based on most used address lists, letting the user choose per crypto, or grouping address lists together.
 
 **For developers:**
 An Account App must expose a standardized set of functions so that Orivon can understand what the account is capable of. This is done through the [CapabilityDescriptor](/docs/technical-design/orivon-objects#capabilitydescriptor), which describes the supported cryptographic algorithms, key derivation paths and any limitations.
