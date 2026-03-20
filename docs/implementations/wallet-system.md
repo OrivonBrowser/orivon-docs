@@ -31,7 +31,7 @@ When a Web3site requests wallet access, Orivon asks the user which account to co
 An Account App must expose a standardized set of functions so that Orivon can understand what the account is capable of. This is done through the [CapabilityDescriptor](/docs/technical-design/orivon-objects#capabilitydescriptor), which describes the supported cryptographic algorithms, key derivation paths and any limitations.
 Some account type examples are: Mnemonic, Hardware wallet and Smart card
 
-The more capabilities an Account App exposes through its `CapabilityDescriptor`, the more Crypto Apps it will be compatible with automatically.
+The more capabilities an Account App exposes through its [CapabilityDescriptor](/docs/technical-design/orivon-objects#capabilitydescriptor), the more Crypto Apps it will be compatible with automatically.
 
 Account Apps can optionally open a GUI at transaction time to interact with the user before completing an operation.
 
