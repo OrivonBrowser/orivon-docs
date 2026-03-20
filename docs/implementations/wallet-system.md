@@ -44,7 +44,7 @@ Depending on user settings and [Web3 Score](/docs/implementations/web3-score), a
 Crypto Apps implement support for a specific cryptocurrency by exposing a standardized set of functions that cover everything needed to interact with that crypto — generating addresses, signing and verifying transactions, and communicating with its network.
 
 **For users:**
-Once a Crypto App is installed (for example, a Bitcoin or Ethereum implementation), it becomes available for any compatible account automatically. The user does not need to manually link their wallet to each crypto — Orivon handles compatibility checks in the background using the account's `CapabilityDescriptor`.
+Once a Crypto App is installed (for example, a Bitcoin or Ethereum implementation), it becomes available for any compatible account automatically. The user does not need to manually link their wallet to each crypto, Address list then handles compatibility checks in the background using the account's [CapabilityDescriptor](/docs/technical-design/orivon-objects#capabilitydescriptor).
 
 Users can install multiple Crypto Apps and switch between implementations if needed (for example, choosing between different Bitcoin implementations with different feature sets).
 
