@@ -28,7 +28,8 @@ When a user opens Orivon for the first time, they can add an account by installi
 When a Web3site requests wallet access, Orivon asks the user which account to connect, based on the user's Web3 Score settings and preferences. The account App may open a GUI to confirm the operation (for example, a hardware wallet confirmation screen).
 
 **For developers:**
-An Account App must expose a standardized set of functions so that Orivon can understand what the account is capable of. This is done through the `CapabilityDescriptor`, which describes the supported cryptographic algorithms, key derivation paths and any limitations.
+An Account App must expose a standardized set of functions so that Orivon can understand what the account is capable of. This is done through the [CapabilityDescriptor](/docs/technical-design/orivon-objects#capabilitydescriptor), which describes the supported cryptographic algorithms, key derivation paths and any limitations.
+Some account type examples are: Mnemonic, Hardware wallet and Smart card
 
 The more capabilities an Account App exposes through its `CapabilityDescriptor`, the more Crypto Apps it will be compatible with automatically.
 
