@@ -55,7 +55,7 @@ Example modules:
 *ipfs.data-gather.tech*  
 *web3.data-gather.arweave*  
 *torrent.data-gather.utorrent*  
-*ethereum.data-gather.orivon*
+*ethereum.data-gather.orivon*  
 *https.data-gather.orivon*
 
 #### Requires ->  
@@ -66,7 +66,7 @@ Example modules:
 
 #### Provides access to ->
 
-- **DG.getFile(path, method, options) | Object\{ Stream\<bytes1> data, bool DDOC \}**
+- **DG.getFile(path, method, options) | Object\{ Stream\<bytes\> data, bool DDOC \}**
 
 - **DG.setModulePriority(string, number) | void**
 
@@ -93,6 +93,36 @@ Example modules:
 - **WS.setModulePriority(string, number) | void**
 
 - **WS.getModules | Array\<\{module, level\}\>**
+
+---
+
+### group.net.connection
+
+Handles how modules open, manage and close network connections (TCP, UDP, WebSocket etc.)
+
+This group allows modules to use network connections without getting direct OS-level access, keeping the system secure and sandboxed.
+
+*To be defined*
+
+---
+
+### group.storage
+
+Handles how modules persist data locally in a sandboxed and secure way.
+
+*To be defined*
+
+---
+
+### group.io
+
+Handles how modules interact with input/output clients (browser, CLI etc.), including rendering UI, sending events and receiving user input.
+
+Example sub groups:  
+*group.io.gui*  
+*group.io.textual*
+
+*To be defined*
 
 ---
 
@@ -144,53 +174,174 @@ Such information is going to be used from modules like ***group.crypto.address-b
 
 ---
 
-## Missing Group Standards (TODO)
+### group.crypto-impl.\{crypto\}
 
-The following group standards are not yet defined but will be needed as the project develops:
+This is the generic standard that all crypto implementation groups must follow (e.g. *group.crypto.btc0-1*, *group.crypto.eth0-1*, *group.crypto.monero0-1*).
 
----
+Every crypto implementation group exposes the same set of functions, so that higher level groups like ***group.crypto.address-book*** only need to know this one standard interface — regardless of which specific crypto is behind it.
 
-### group.crypto.address-book  
-**And group.crypto.view-only-address-book**
+The child modules of a crypto implementation group (e.g. *bitcoin.crypto.orivon*) implement the crypto-specific logic and expose it through this standard interface.
 
-Print out and interact with the address book available in an account by the terms of each supported crypto group
+#### Requires ->
 
-*To be defined*
+- **group.crypto.account**
 
----
+- **Module.\{crypto\}GetDescriptor(accountId) | Array\<CryptoDescriptor\>**  
+  Returns the capabilities this crypto implementation supports, including allowed derivation paths
 
-### group.net.connection
-Handles how modules open, manage and close network connections (TCP, UDP, WebSocket etc...)
+- **Module.\{crypto\}Operate(accountId, payload, options) | JSON**  
+  Used for signing and other crypto operations
 
-This group allows to prevent the grant of direct OS functions to untrusted modules while keeping effective these functionalities
+- **Module.\{crypto\}GetKey(accountId, path) | bytes | Error**  
+  Derives a key at the given path — whether the path is valid is determined by the account or the crypto implementation module based on their supported capabilities
 
-*To be defined*
+#### Provides access to ->
 
----
+- **CRYPTO.getDescriptor(accountId) | Array\<CryptoDescriptor\>**  
+  Returns the capabilities of this crypto implementation for a given account  
+  The website uses this to know what derivation paths and operations are available before making any requests
 
-### group.storage
-Handles how modules persist data locally in a sandboxed and secure way
+- **CRYPTO.operate(accountId, payload, options) | JSON**  
+  Executes a crypto operation (sign, verify etc.) through the connected account
 
-*To be defined*
+- **CRYPTO.getKey(accountId, path) | bytes | Error**  
+  Returns a derived key at the given path  
+  The error is returned by either the account or the crypto implementation if the path is not within their supported range
 
----
+- **CRYPTO.setModulePriority(module, level) | void**
 
-### group.io (input output)
-Handles how modules interact with further input clients (browser, cli etc...), it may be rendering UI, sending events, receiving user input
-
-Example sub groups:  
-*group.io.gui*  
-*group.io.textual*
-
-*To be defined*
+- **CRYPTO.getModules() | Array\<\{module, level\}\>**
 
 ---
 
-### Others TODO
+### group.crypto-impl.btc0-1
+
+Implements the ***group.crypto-impl.\{crypto\}*** standard for Bitcoin.
+
+Child modules implement Bitcoin-specific cryptographic operations (ECDSA, Schnorr, PSBT) and expose them through the standard crypto-impl interface.
+
+Example modules:  
+*bitcoin.crypto.orivon*  
+*bitcoin.crypto.sparrow*
+
+#### Requires ->
+
+- **group.crypto.account**
+
+- **Module.bitcoinGetDescriptor(accountId) | Array\<CryptoDescriptor\>**  
+  Must include Bitcoin-compatible capabilities: SECP256K1_SIGN and allowed BIP44/49/84/86 derivation paths
+
+- **Module.bitcoinOperate(accountId, payload, options) | JSON**  
+  Used for ECDSA and Schnorr signing operations
+
+- **Module.bitcoinGetKey(accountId, path) | bytes | Error**  
+  Derives keys at BIP44/49/84/86 paths — error is returned by the account or the module if the path is not supported
+
+#### Provides access to ->
+
+Follows the ***group.crypto-impl.\{crypto\}*** standard interface.
+
+Additionally exposes:
+
+- **BTC.buildTransaction(accountId, inputs, outputs, feeRate) | PSBT**  
+  Constructs an unsigned PSBT from the given UTXOs and outputs  
+  ***inputs***: UTXOs to spend | *Array\<UTXO\>*  
+  ***outputs***: recipients and amounts | *Array\<\{address, value\}\>*  
+  ***feeRate***: sat/vB | *Number*
+
+- **BTC.signTransaction(accountId, psbt) | PSBT**  
+  Signs all inputs of a PSBT using the connected account  
+  ***RETURN***: *Finalized PSBT ready for broadcast*
+
+---
+
+### group.crypto.address-book
+
+Manages address lists across all connected crypto implementation groups.  
+Does not know which specific cryptos exist — only interacts with groups implementing the ***group.crypto-impl.\{crypto\}*** standard.
+
+The website uses ***AB.getCapabilities()*** to know what derivation paths and address types are available for a given account and crypto group, before requesting any addresses.
+
+Child modules under address-book implement specific address list strategies. The website decides which address list module to use, or it can use all available ones based on the CapabilityDescriptor.
+
+Example child modules:  
+*bitcoin.address-book.orivon* — default Bitcoin address list following BIP44/84/86  
+*vanity-ethereum.address-book.devbob* — generates vanity Ethereum addresses
+
+#### Requires ->
+
+- **group.crypto.account**
+
+- **Module.getAccountDescriptor(accountId) | Array\<CapabilityDescriptor\>**
+
+- Any group implementing ***group.crypto-impl.\{crypto\}*** standard
+
+#### Provides access to ->
+
+- **AB.getAddress(accountId, cryptoGroupId, index) | AddressInfo | Error**  
+  Returns the address at the given index
+
+- **AB.getAvailableCryptoGroups() | Array\<string\>**  
+  Returns all crypto group IDs currently connected to the address book
+
+- **AB.getAddressListModules(cryptoGroupId) | Array\<\{moduleId, descriptor\}\>**  
+  Returns all available address list modules for a given crypto group  
+  The website can choose which one to use
+
+---
+
+### group.network.btc-0-1
+
+Standard access functions for interacting with the Bitcoin network.
+Modules implementing this standard handle the actual network communication
+(Electrum servers, REST APIs, or direct P2P).
+
+Example modules:  
+*electrum.btc-network.orivon*  
+*esplora.btc-network.blockstream*  
+*mempool.btc-network.mempool-space*
+
+#### Requires ->
+
+- **Module.broadcastTransaction(rawHex) | JSON**
+
+- **Module.getUTXOs(scriptHash) | Array\<UTXO\>**
+
+- **Module.getTransaction(txid) | JSON**
+
+- **Module.estimateFees() | JSON**
+
+- **Module.getBlockHeight() | Number**
+
+#### Provides access to ->
+
+- **BNET.broadcastTransaction(rawHex) | string**  
+  Broadcasts a signed raw transaction to the Bitcoin network  
+  ***RETURN***: *txid on success*
+
+- **BNET.getUTXOs(scriptHash) | Array\<UTXO\>**  
+  Returns unspent outputs for a given script hash  
+  ***RETURN***: *Array\<\{txid, vout, value, height\}\>*
+
+- **BNET.getTransaction(txid) | JSON**  
+  Returns full transaction data including confirmation status
+
+- **BNET.estimateFees() | JSON**  
+  Returns fee estimates per confirmation target  
+  ***RETURN***: *\{fast, standard, economy, minimum\} in sat/vB*
+
+- **BNET.getBlockHeight() | Number**  
+  Returns the current best block height
+
+- **BNET.subscribeAddress(scriptHash, callback) | Subscription**  
+  Real-time notifications when a script hash receives or spends outputs
+
+- **BNET.setModulePriority(module, level) | void**
+
+- **BNET.getModules() | Array\<\{module, level\}\>**
+
 
 TODO's:  
-
-***group.crypto.btc0-1*** Effectively interact with group.crypto.account to implement bitcoin  
 ***group.crypto.eth0-1*** Effectively interact with group.crypto.account to implement ethereum  
-***group.network.btc-0-1*** Implement a standard of access functions to Bitcoin Network  
-***group.network.eth-0-1*** Implement a standard of access functions to Ethereum Network  
+***group.crypto.view-only-address-book***  Interact with supported crypto groups to print out a view only address book  
+***group.network.eth-0-1*** Implement a standard of access functions to Ethereum Network
