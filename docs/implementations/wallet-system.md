@@ -23,9 +23,9 @@ The Orivon Wallet is organized in accounts, which Apps can implement with their 
 Every account may represent a Mnemonic, a Hardware wallet account or anything else by the integration App logic (ex. multisig, smart accounts etc...)
 
 **For users:**
-When a user opens Orivon for the first time, they can add an account by installing an Account App — for example a mnemonic wallet or a hardware wallet App. Once added, that account becomes available across all compatible crypto implementations without any additional setup. The user manages all their crypto from a single account, rather than juggling separate wallets for each coin.
+When a user opens Orivon for the first time, they can add an account by installing an Account App, for example a mnemonic wallet or a hardware wallet App. Once added, that account becomes available across all compatible crypto implementations without any additional setup. The user manages all their crypto from a single account, rather than juggling separate wallets for each coin.
 
-When a Web3site requests wallet access, the user chooses which address list to connect to the site — for example their default Bitcoin address list or a vanity Ethereum address list. This way the user has full control over exactly which addresses the site has access to. How Orivon handles multiple cryptos connected to the same site at once is still an open discussion — possible approaches include the browser guessing based on most used address lists, letting the user choose per crypto, or grouping address lists together.
+When a Web3site requests wallet access, the user chooses which address list to connect to the site, for example their default Bitcoin address list or a vanity Ethereum address list. This way the user has full control over exactly which addresses the site has access to. How Orivon handles multiple cryptos connected to the same site at once is still an open discussion, possible approaches include the browser guessing based on most used address lists, letting the user choose per crypto, or grouping address lists together.
 
 **For developers:**
 An Account App must expose a standardized set of functions so that Orivon can understand what the account is capable of. This is done through the [CapabilityDescriptor](/docs/technical-design/orivon-objects#capabilitydescriptor), which describes the supported cryptographic algorithms, key derivation paths and any limitations.
@@ -41,7 +41,7 @@ Depending on user settings and [Web3 Score](/docs/implementations/web3-score), a
 
 ### Layer 2: Crypto
 
-Crypto Apps implement support for a specific cryptocurrency by exposing a standardized set of functions that cover everything needed to interact with that crypto — generating addresses, signing and verifying transactions, and communicating with its network.
+Crypto Apps implement support for a specific cryptocurrency by exposing a standardized set of functions that cover everything needed to interact with that crypto, generating addresses, signing and verifying transactions, and communicating with its network.
 
 **For users:**
 Once a Crypto App is installed (for example, a Bitcoin or Ethereum implementation), it becomes available for any compatible account automatically. The user does not need to manually link their wallet to each crypto, Address list then handles compatibility checks in the background using the account's [CapabilityDescriptor](/docs/technical-design/orivon-objects#capabilitydescriptor).
@@ -70,30 +70,14 @@ Address Book Apps have no direct access to any user private key, so they are con
 **For users:**
 The user sees a list of addresses derived from their account, organized by crypto type. They can label addresses, mark addresses as non-spendable, and export descriptors for wallet backup or recovery tools.
 
-By default, each Crypto App comes with its own default Address Book implementation that follows the standard derivation paths for that crypto (for example BIP44/84/86 for Bitcoin). Users can also install additional Address Book Apps for special use cases — for example a vanity address generator, or a Gnosis Safe address list.
+By default, each Crypto App comes with its own default Address Book implementation that follows the standard derivation paths for that crypto (for example BIP44/84/86 for Bitcoin). Users can also install additional Address Book Apps for special use cases, for example a vanity address generator, or a Gnosis Safe address list.
 
 When multiple Address Book Apps are available for the same crypto, Orivon lets the user choose which one to use.
 
 **For developers:**
-An Address Book App receives a `CryptoDescriptor` from the Crypto layer and uses it to understand which derivation paths are available and allowed for the connected account. Address generation always goes through this descriptor — if a requested path is outside the allowed range, the error is returned by the account or the crypto implementation, not the Address Book itself.
+An Address Book App receives a `CryptoDescriptor` from the Crypto layer and uses it to understand which derivation paths are available and allowed for the connected account. Address generation always goes through this descriptor, if a requested path is outside the allowed range, the error is returned by the account or the crypto implementation, not the Address Book itself.
 
-Address Book Apps can also open a GUI when needed, for example to display a QR code or to confirm an address before sharing it.
-```
+Address Book Apps can also open a GUI when needed, for example to display a QR code or to confirm an address before sharing it.§
 
----
-
-**Commit message:** `Expand wallet-system implementation with user and developer perspective`
-
-**Extended description:**
-```
-The existing wallet-system page described the 3 layers at a high level but 
-did not explain how they actually work from a user or developer perspective.
-
-Added user-facing descriptions for each layer explaining what the user 
-sees and how they interact with it — account setup, crypto installation, 
-address management. Added developer-facing descriptions explaining what 
-each App must implement and why, including how CapabilityDescriptor and 
-CryptoDescriptor are used to keep the layers generic and compatible.
-
-These additions give the Foundation Implementation the detail it needs 
-for Technical Design to correctly build on top of it.
+Address Book itself exposes addresses in an index-based way.
+Meaning that a website who wants to use the derivation path should get access to the Account and Crypto layer
