@@ -186,13 +186,13 @@ The child modules of a crypto implementation group (e.g. *bitcoin.crypto.orivon*
 
 - **group.crypto.account**
 
-- **Module.cryptoGetDescriptor(accountId) | Array\<CryptoDescriptor\>**  
+- **Module.\{crypto\}GetDescriptor(accountId) | Array\<CryptoDescriptor\>**  
   Returns the capabilities this crypto implementation supports, including allowed derivation paths
 
-- **Module.cryptoOperate(accountId, payload, options) | JSON**  
+- **Module.\{crypto\}Operate(accountId, payload, options) | JSON**  
   Used for signing and other crypto operations
 
-- **Module.cryptoGetKey(accountId, path) | bytes | Error**  
+- **Module.\{crypto\}GetKey(accountId, path) | bytes | Error**  
   Derives a key at the given path — whether the path is valid is determined by the account or the crypto implementation module based on their supported capabilities
 
 #### Provides access to ->
@@ -214,7 +214,7 @@ The child modules of a crypto implementation group (e.g. *bitcoin.crypto.orivon*
 
 ---
 
-### group.crypto.btc0-1
+### group.crypto-impl.btc0-1
 
 Implements the ***group.crypto-impl.\{crypto\}*** standard for Bitcoin.
 
@@ -228,13 +228,13 @@ Example modules:
 
 - **group.crypto.account**
 
-- **Module.cryptoGetDescriptor(accountId) | Array\<CryptoDescriptor\>**  
+- **Module.bitcoinGetDescriptor(accountId) | Array\<CryptoDescriptor\>**  
   Must include Bitcoin-compatible capabilities: SECP256K1_SIGN and allowed BIP44/49/84/86 derivation paths
 
-- **Module.cryptoOperate(accountId, payload, options) | JSON**  
+- **Module.bitcoinOperate(accountId, payload, options) | JSON**  
   Used for ECDSA and Schnorr signing operations
 
-- **Module.cryptoGetKey(accountId, path) | bytes | Error**  
+- **Module.bitcoinGetKey(accountId, path) | bytes | Error**  
   Derives keys at BIP44/49/84/86 paths — error is returned by the account or the module if the path is not supported
 
 #### Provides access to ->
@@ -278,14 +278,8 @@ Example child modules:
 
 #### Provides access to ->
 
-- **AB.getCapabilities(accountId, cryptoGroupId) | Array\<CryptoDescriptor\>**  
-  Returns the capabilities of the account-crypto combination  
-  The website uses this to know which derivation paths and address types it can request
-
-- **AB.getAddress(accountId, cryptoGroupId, derivationPath) | AddressInfo | Error**  
-  Returns the address at the given derivation path  
-  The error is returned by either the account or the crypto implementation if the path is not within their supported range  
-  ***derivationPath***: e.g. `m/84'/0'/0'/0/0` | *String*
+- **AB.getAddress(accountId, cryptoGroupId, index) | AddressInfo | Error**  
+  Returns the address at the given index
 
 - **AB.getAvailableCryptoGroups() | Array\<string\>**  
   Returns all crypto group IDs currently connected to the address book
@@ -293,18 +287,6 @@ Example child modules:
 - **AB.getAddressListModules(cryptoGroupId) | Array\<\{moduleId, descriptor\}\>**  
   Returns all available address list modules for a given crypto group  
   The website can choose which one to use
-
-- **AB.setLabel(ref, label) | void**  
-  Attach a human-readable label to an address or UTXO
-
-- **AB.getLabel(ref) | string**
-
-- **AB.freezeAddress(address) | void**  
-  Mark an address as non-spendable
-
-- **AB.exportDescriptors(accountId, cryptoGroupId) | Array\<CryptoDescriptor\>**  
-  Returns the full capability descriptor for the account-crypto combination  
-  Allows the website to understand what the wallet can do and which paths are accessible
 
 ---
 
