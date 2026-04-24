@@ -24,10 +24,10 @@ Page hash-tree changes at each page and should find its hash in the Core hash-tr
 Then, for each file Orivon Browser happens to receive, his content will be hashed and compared with the hash indicated on the Page hash-tree. In case of mismatch, DDOC immediately fails, alerting the user of a possible site compromise
 
 
-The DNS record for DDOC is “DDOC [number] [hash]” 
+The DNS record for DDOC is “DDOC=[number]/[hash]” 
 
 Example:  
-*DDOC 0 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b*  
+*DDOC=0/01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b*  
 
 The number serves for versioning, so that Domain owners can have multiple DDOC Hashes and update their sites across time without causing DDOC to fail
 

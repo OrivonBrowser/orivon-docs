@@ -1,0 +1,227 @@
+# Modules system
+
+As Orivon aims to be as viable as possible for mass adoption, modularization becomes crucial.  
+Having the Modules System separated from the Browser takes relevant benefits:
+
+- **Cross compatibility** across various environments with Orivon Modules Support  
+<small>As an example, an Orivon Community dev who makes a DNS Resolution module for .eth domains, will automatically work everywhere Orivon Modules does, like Mobile, HTTP clients, etc...</small>
+
+- **Better code maintenance and scalability**
+
+- **Better security model**
+
+The Modules System is just a pillar to support the Orivon Ecosystem on its various environments with the same standard functionalities in a safe manner
+
+
+## Initial Basics
+
+We can refer to the Modules System as the server, and who uses it as the client *(For example Orivon Browser is a client)*
+
+Client has full control over the Modules System, which exists merely as an engine and standardized interface foundation
+
+Then, Module System works trough 2 parts of it:  
+
+- The mere **Engine** part, who actually runs the Modules, makes them work on various environments, handles the basic communication between them, handles and defines the raw system resources access and its relative basic permissions management
+
+- And the **Standard-enforced** part, which enforces the Orivon-specific set of standard, the way of doing the things and ensuring that everything from the Client is done correctly trough well made rules thought for the Orivon Ecosystem
+
+
+## Specification points
+
+Here are the foundational specs and goals of the Modules System:
+
+- **Android-apps-inspired modules**: Modules model should be inspired as the Android Apps systems is, with an ID for each Module, great sandbox, well made permission system to access the Web3 needed OS Functions and communicate with other Modules  
+    *Type: Standard-enforced*
+
+- **High security standards**: Since the Modules System is one of the foundation piece of Orivon and uses new delicate technologies for important pieces of software like browsers, very high standard of security should be applied  
+    *Type: Engine & Standard-enforced*  
+
+- **Run everything of Web3**: Every imaginable Web3 Application should be runnable entirely within the Modules system, *Bitcoin Node, Bisq Client, ENS domain Resolution, IPFS node for data gathering* etc...
+
+    Exception can be done for software with very specific hardware environments requirements, *such as Bitcoin mining, JIT compilers* and other
+
+    *Type: Mostly Engine*
+
+- **Connectable**: Be still able to work properly along with environment-specific programs that needs low-level or hardware-specific optimizations/operations. They should still be connectable and implementable alongside the Modules System
+
+    *An example is the V8 Engine (The JIT part):*  
+    *Modules System may not support it, but the Orivon Browser can use its V8 and connect it to work with the Modules System*
+
+    *Type: Standard-enforced*
+
+- **Programming language independence**: Modules should be as much programming-language-independent as possible  
+    *Type: Engine*
+
+- **High performance**: Modules should run in a nearly low level high performance way  
+    *Type: Engine*
+
+- **Made to be run on-fly**: Modules aims to be run on-fly, since they will be used often by opening a Web3site (from Orivon Browser), or often interchanged from Clients.
+
+    All of that, should be the less resource intensive as possible
+
+    *Type: Engine & Standard*
+
+***From Technical Design:** Achieved trough WASM Modules within a runtime for expanded capabilities thanks to orivon-runtime*
+
+## Compatibility
+
+Orivon Modules support from other programs should be made as easy as possible, so that Orivon Modules capabilities will be easily supported also from environments like *Curl*, *wget*, *Mobile*, *Embedded devices* etc...
+
+SDKs for various environments will be made to make it possible
+
+In the meanwhile  
+Developers will be able to create Modules which will be already compatible with every environment supporting Orivon Modules
+
+Some goal examples:
+- Write a DNS Resolution Module for ENS Domains already compatible with various *HTTP clients*, *Orivon Browser*, *Mobile Orivon-Based Apps* etc...
+- Implement mnemonic wallet support both already compatible with *Orivon Browser* but also for within *Hardware Wallets*
+- A vanity Address list support already compatible within *Orivon Browser* but also *Hardware Wallets*
+
+*This assumes that such environments does actually implement support for Orivon Modules*  
+*In future we plan to make forks on relevant projects to integrate Orivon Modules support*
+
+***From Technical Design:** Achievable trough orivon-core (the scheme to easily add Orivon Modules support anywhere is yet to define)*
+
+
+## Standard-enforcing components
+
+Engine requirements are already clarified from the previous sections, but the Standard-enforcing one needs a deeper work
+
+### Modules types
+
+Orivon is very modular on its components  
+For that reasons there are various Modules types, each one to fullfil specific needs
+
+The types of possible modules for the Modules System are:
+
+- DNS Resolution
+- Data Gathering
+- Accounts
+- Crypto
+- Address List
+- Network node
+- Web3 Score Provider
+
+But it shouldn't be limited to these  
+Modules System allows the creation of different types of modules to fulfill different environments needs
+
+Standards are enforced only when the Client uses any specific existing Module Type
+
+For example a textual client using the Orivon Modules System may want to create its own Module type to interact trough text stream  
+Or a Browser may want to implement new GUI's or functions trough the Modules System
+
+They can do it trough the Modules System by creating their own type
+
+If you are not extending and you stay within the standard Module Types, some standard rules may be enforced  
+What precisely these rules will be is much a Technical Design choice, even tho some specs may be written in this page
+
+### Modules metadata
+
+Each module should have attached to it its relative metadata
+
+Modules metadata could be read and used from the Modules System itself or from clients Applications, like Orivon Browser
+
+Details of how metadata should be implemented is a *Technical Design* choice
+
+### Modules standards code
+
+Many modules types tends to implement support for various standardized things  
+For that reason Clients may benefit from standard identifiers
+
+Identifiers may be available at metadata level or module function level (Technical Design choice)
+
+Here we list all types of identifiers and how them works:
+
+- *DNS Resolution:*
+
+    It contains the list of supported first level domains  
+    `.eth`, `.web3`, `.btc` etc...
+
+- *Data Gathering*
+
+    It contains the list of supported DNS Records prefixes (or special code) for Data Gathering  
+    `IP`, `dnslink=/ipfs/`, `onion=`, `dat=dat://`, `arweave=` etc...
+
+- *Network node*
+
+    Defines a standard set of functions that a Network node module can offer to give access to a specific Network  
+    `BTC_0_1`, `BTC_0_1_READONLY`, `ETH_0_1`, `TORRENT_3_1`, `IPFS_0_1`, `ORACLE_CRYPTO_PRICES` etc...
+
+- *Crypto*
+
+    Defines a standard set of functions that a Crypto module can offer to make work a specific Crypto  
+    `BTC_0_1`, `BTC_0_3`, `ETH_0_1`, `XMR_5_2`, `BHC_0_1`
+
+### Modules groups
+
+Modules groups are a way to join together multiple modules to make then work together when otherwise they may encounter conflicts
+
+How Modules groups are implemented is a Technical Design choice
+
+A Module Group behavior should be modifiable from Client  
+Orivon will implement by default some Group types for its own needs
+
+#### Priority-able groups
+
+Priority-able groups are groups made with the goal to solve conflicts trough setting a priority level  
+In this category are the following module types:
+
+*DNS Resolution, Data Gathering, Network Node and Web3 Score Provider*
+
+For example at DNS Resolution, multiple Modules may implement support for the same first level domain (as example: *.eth*)  
+It is then Client's job to connect the Module type to the appropriate group and interact with it accordingly
+
+Priority-able groups has the following functions:
+- Allow to set a priority level for each connected module
+- Allows to retrieve the list of connected modules
+- The Group Module logic acts based on the priority table values  
+- It lets the Client choose a lower priority Module when needed
+
+### Wallet System
+
+The Modules System implements the needed Standards and eventual Modules Groups to fulfill the [Wallet System](/docs/implementations/wallet-system) needs
+
+How that is precisely achieved remains a Technical Design choice
+
+## Permissions system
+
+Since Orivon philosophy is to have a great modularization for its components, a permission system is vital to make them work together
+
+To begin, by default every module is usually completely isolated without internet or storage access and can't communicate with other modules, mainly for security reasons
+
+The permission system allows to grant this kind of permissions whenever a module requests it
+
+The Client should be able to:
+
+- Manage access for a Module to other Modules or Modules Groups. Both entirely, or by a specific set of functions.
+
+- Manage the access for a Module to the various low level OS functions needed from Apps/Web3sites to accomplish their need (such as controlled raw network access, storage etc...)
+
+    It should be accomplished in the safest way possible since a key security risk of Orivon comes at this point
+
+- Make a new Module type
+
+For example, the DNS Resolution module, which resolves ENS domains, needs a Network Node to access the Ethereum network  
+The same may be for the Web3 Score provider, or a custodial Account type with access to HTTP 
+
+Then it is the Client's responsibility to connect them in a safe and meaningful way for its needs
+
+## Connection System
+
+### Requests behavior
+
+The Data Gathering system is directly compatible with the DNS Resolution system (both in case of group, or single module)
+
+It is the client's job to make connect them together to load a web content
+
+Then, Technical Decision may choose easier ways to accomplish that same thing
+<small>For example, and Orivon SKD Tool</small>
+
+An example is Curl implementing Orivon Modules Support:  
+Its within the Curl codebase to implement that after a DNS is resolved through Orivon, collect the Data Gathering from Orivon too
+
+### DDOC
+
+The Module type *Data Gathering* has the responsibility to output the [DDOC](/docs/orivon#ddoc) state when a resource is loaded
+
+This way, Web3 score can work properly, and Clients will be able to use this value for their own security needs

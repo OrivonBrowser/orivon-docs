@@ -81,4 +81,4 @@ decentralized enough)
 
 ### Security levels
 
-Work in progress...
+Currently in our TODO list

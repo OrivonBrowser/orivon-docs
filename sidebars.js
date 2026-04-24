@@ -4,7 +4,7 @@
 
 const ImplementationsDescription = 
 `Implementations Category contains the specifications of how Orivon should look like both for devs and users.  
-Its up to the Technical Design writers to correctly follow the Implementation, more details on the Internal Documentation`
+Its up to the Technical Design writers to correctly follow the Implementation, more details on the Internal Documentation.`
 
 /**
  * Creating a sidebar enables you to:
@@ -27,28 +27,40 @@ const sidebars = {
       label: 'The Orivon Project',
     },
     {
-      type: 'doc',
-      id: 'involving',
-      label: 'Get Involved',
-    },
-    {
-      type: 'doc',
-      id: 'roadmap',
-      label: 'Roadmap',
-    },
-    {
-      type: 'doc',
-      id: 'dao-plan',
-      label: 'DAO Structure & Plan',
-    },
-    {
-      type: 'doc',
-      id: 'economical-strategy',
-      label: 'Economic strategy',
+      type: 'category',
+      label: 'Orivon Foundation',
+      collapsed: false,
+      items: [
+        {
+          type: 'doc',
+          id: 'involving',
+          label: 'Get Involved',
+        },
+        {
+          type: 'doc',
+          id: 'roadmap',
+          label: 'Roadmap',
+        },
+        {
+          type: 'doc',
+          id: 'dao-plan',
+          label: 'DAO Structure & Plan',
+        },
+        {
+          type: 'doc',
+          id: 'economical-strategy',
+          label: 'Economic strategy',
+        },
+        {
+          type: 'doc',
+          id: 'internal-docs',
+          label: 'Internal Docs'
+        },
+      ],
     },
     {
       type: 'category',
-      label: 'Implementations',
+      label: 'Implementation',
       collapsed: true,
       link: {
         type: 'generated-index',
@@ -56,12 +68,12 @@ const sidebars = {
         description: ImplementationsDescription,
       },
       items: [
-        'implementations/dashboard-app',
-        'implementations/dns-resolution',
-        'implementations/data-gathering',
-        'implementations/web3-score',
-        'implementations/native-ddoc-specs',
+        'implementations/orivon-ecosystem',
+        'implementations/orivon-browser',
+        'implementations/modules-system',
         'implementations/wallet-system',
+        'implementations/web3-score',
+        'implementations/native-ddoc-specs'
       ],
     },
     {

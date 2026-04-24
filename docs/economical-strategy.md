@@ -75,4 +75,4 @@ Then, further investments will be for new internal Orivon projects, or funding t
 
 That's out current plan of the Orivon economical strategy, if you have advices you can always look up at our [**Discord**](https://discord.gg/DuRg87MvgD) or our official forum [**OrivonStack**](https://orivonstack.com)
 
-You can hop to the next page where we show details of [Implementations](/docs/implementations/dashboard-app) of various components of Orivon
+You can hop to the next page where we show details of [Implementations](/docs/category/implementation) of various components of Orivon
