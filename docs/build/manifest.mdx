@@ -1,0 +1,184 @@
+---
+title: The manifest
+sidebar_label: Manifest
+sidebar_position: 2
+description: Where the manifest lives, every field, the capability grammar, what the person reads at the prompt, and how pinning and updates work.
+---
+
+The manifest tells Orivon what your app is and what it may ask for. This page covers where it lives, every field and capability as Orivon parses them, the words the person reads before granting, and how pinning and updates work. The authoritative types are in [`src/contracts/manifest.ts`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/contracts/manifest.ts).
+
+## Where it lives
+
+The manifest is served at `/.well-known/orivon.json` on your app's own origin, and your entry page links it:
+
+```html
+<link rel="orivon-manifest" href="/.well-known/orivon.json">
+```
+
+Orivon never probes for a manifest: a request to every site a person visits would tell each site "this visitor runs Orivon". A page without the hint is never asked for one and stays an ordinary page. The hint must resolve to the page's own origin.
+
+`/.well-known/` belongs to the host, so every app on one host shares one origin: one set of grants, one storage area, one derived key. Give each app a hostname of its own.
+
+## An example
+
+```json
+{
+  "orivonApiVersion": 0,
+  "id": "com.example.notes",
+  "name": "Example Notes",
+  "version": "1.4.0",
+  "entry": "index.html",
+  "assets": ["app.js", "style.css", "icon.svg"],
+  "domain": "notes.example",
+  "consentGranularity": "per-capability",
+  "capabilities": {
+    "net": { "https": { "connect": ["api.notes.example:443"] } },
+    "fs": { "quotaBytes": 104857600 },
+    "secrets": {}
+  }
+}
+```
+
+## Top-level fields
+
+| Field | Required | What it is |
+|---|---|---|
+| `orivonApiVersion` | Yes | Exactly `0`. Zero means unstable: breaking changes are permitted until it reaches `1`. |
+| `id` | Yes | A reverse-DNS identifier, informational only. The origin is the real isolation key. |
+| `name` | Yes | Self-asserted. The prompt leads with your origin and marks the name as claimed. |
+| `version` | Yes | Semver core plus an optional prerelease; build metadata is ignored. A version that is not semver is rejected at install. |
+| `entry` | Yes | The entry HTML file, relative to the origin, such as `index.html`. |
+| `assets` | No | Every other file the app ships. Leave it out when `entry` is the whole app; an empty array is rejected. |
+| `capabilities` | Yes | What the app may ask for. `{}` asks for nothing. |
+| `consentGranularity` | No | `"all-or-nothing"`, the default, or `"per-capability"`. |
+| `crossOriginIsolated` | No | `true` only. Serves your documents with `COOP: same-origin` and `COEP: credentialless`. |
+| `domain` | No | The one ENS name or DNS host your app calls home, such as `freetube.orivonstack.eth`. |
+
+An unknown top-level field is ignored with a warning. An unknown field anywhere inside `capabilities` rejects the whole manifest, because every capability field asks for authority. Each rejection names the field and what was wrong.
+
+`crossOriginIsolated` turns on `SharedArrayBuffer`, a shared `WebAssembly.Memory` and `Atomics.wait` in a worker, which WebAssembly built with threads needs. It costs `window.opener` from windows your app opens, and credentials on cross-origin subresources. Declare it only if you need it.
+
+`domain` is lower case, with no scheme, port, path or IP address. A Web3 Score provider's judged level for your content counts only at this name.
+
+## No capability is implicit
+
+The manifest declares what your app may ask for. The person grants what it actually gets. Absence means absence, never a default. Grants are checked against the pinned manifest, never against anything your page says at run time, and an app cannot obtain a capability its manifest does not declare, even if the person would agree to it.
+
+## Capabilities
+
+### `net`
+
+```json
+"net": {
+  "tcp": {
+    "connect": ["*:6697", "127.0.0.1:6660-6699"],
+    "listen": { "local": ["9000"] }
+  },
+  "udp": { "bind": { "network": ["6881-6889"] }, "send": ["*:*"] },
+  "https": { "connect": ["api.example.com:443"] },
+  "concurrentSockets": 128
+}
+```
+
+| Field | Used by |
+|---|---|
+| `tcp.connect` | `orivon.net.connect` |
+| `tcp.listen` | `orivon.net.listen` |
+| `udp.bind` | `orivon.net.udpBind` |
+| `udp.send` | writes on a UDP socket |
+| `https.connect` | `orivon.net.connectSecure`, and your page's own `fetch` to a granted host |
+| `concurrentSockets` | every open TCP and UDP socket combined |
+
+**Patterns** are `host:port` or `host:lo-hi`, such as `api.example.com:443` or `*:8000-8999`. Write hosts exactly as they are compared: lower case, IPv6 in brackets (`[::1]:6697`).
+
+- `*` as the host means any public address. `tcp.connect` and `https.connect` accept it with a port or a range; `udp.send` accepts it only as `*:*`.
+- A wildcard never reaches a reserved port (DNS, mail, SMB, RDP, IRC and the like) through `*:*` or a range. Naming the port reaches it: `*:6697` reaches 6697, while `*:6660-6699` skips it.
+- A wildcard never reaches a private, loopback or link-local address. Name one to reach it, as in `127.0.0.1:6697`.
+- `tcp.connect` and `udp.send` match the address a name resolves to, never the name, so DNS rebinding cannot widen them. `https.connect` matches the hostname, because the broker's certificate check binds that name to whoever answered.
+
+**Listening.** `listen` and `bind` take port ranges by reach. `local` is reachable only from the same computer. `network` is reachable from the local network, and the internet if the port is forwarded, and covers `local`. `"*"` is rejected and ports below 1024 are denied.
+
+**Sockets.** `concurrentSockets` defaults to 64. The platform ceiling is 512, and the broker enforces the lower of the two, so a peer-to-peer app that needs more says so and the person sees the number.
+
+### `fs`
+
+```json
+"fs": { "quotaBytes": 1073741824 }
+```
+
+A private folder for your app on the person's device. The quota is enforced: a write past it fails with `limit`. Files outside that folder are reachable only when the person picks them in an OS dialog; the pick is the consent.
+
+### `id`
+
+```json
+"id": { "curves": ["P-256"] }
+```
+
+A key derived for your origin alone. `curves` names the curves your app may pass to `orivon.id`; omitted means none.
+
+### `web`
+
+```json
+"web": {
+  "contexts": ["https://www.youtube.com"],
+  "embed": { "origins": ["*", "http://*.localhost:9000"] }
+}
+```
+
+- `contexts`: exact `https` origins where your app may run code as that site, in an empty, never-displayed document with none of the person's data. No wildcard, path, private address or `localhost`.
+- `embed.origins`: the sites your app may show inside its page in a `<webview>`. Each is an exact `http` or `https` origin, `"*"` for any site on the web, or a local pattern (`http://*.localhost:<port>`, `http://*.<name>.localhost:<port>`) that reaches only a listener your app itself holds.
+
+### Other capabilities
+
+```json
+"media": { "camera": true, "microphone": true, "screen": true },
+"secrets": {},
+"trust": { "score": true }
+```
+
+- `media`: presence is the ask, and `true` the only value. Your app uses the web's own `getUserMedia` and `getDisplayMedia`; for `screen`, the person picks what to share each time.
+- `secrets`: an encrypt and decrypt pair keyed to your origin and protected by the OS keyring.
+- `trust`: lets your app ask the person's Web3 Score provider about other sites.
+
+A capability key the loader does not know makes it reject the whole manifest.
+
+## What the person reads
+
+The prompt turns each declaration into plain words. A narrow grant reads as a plain line. A broad one carries a warning and says what it means. These are the words Orivon shows today:
+
+| Declared | The person reads |
+|---|---|
+| `"https": { "connect": ["irc.libera.chat:6697"] }` | Connect to irc.libera.chat |
+| `"tcp": { "connect": ["*:*"] }` | ⚠ Unlimited network access. This app can connect to any computer on the internet, not just specific ones. |
+| `"https": { "connect": ["*:*"] }` | ⚠ Unlimited network access. This app can connect to any website, not just specific ones. |
+| `"tcp": { "listen": { "local": ["9000"] } }` | ⚠ Accept connections from other programs on this device on port 9000 |
+| `"fs": { "quotaBytes": 1073741824 }` | Store files in a private folder for this app on this device |
+| `"web": { "contexts": ["https://www.youtube.com"] }` | ⚠ Run code as www.youtube.com, in a private, empty session. |
+| `"media": { "camera": true }` | Use your camera |
+
+The origin is the prompt's title and its last line, because it is the one thing an app cannot fake. Your `name` sits on a line of its own: `Claims to be "My IRC client".` A short list of named hosts reads as what it is. `*:*` reads as unlimited, because it is.
+
+## Consent granularity
+
+With `"all-or-nothing"`, the default, the whole declared set is one decision: the app runs with everything it asked for, or not at all. Choose it for code ported from Node or Electron, which was never written to handle a refused capability.
+
+With `"per-capability"`, the person decides each capability on its own, and your app learns what it got from `orivon.app.grants()`. Choose it when your code works without a capability.
+
+Either way, the person can switch a grant off later. Its handles close, and pending calls reject with `revoked`.
+
+## Pinning and caching
+
+When Orivon finds a manifest at an `https` origin, it fetches the manifest, the entry and every listed asset, hashes them into one bundle hash, pins it and caches the files, with no prompt: caching inert files grants nothing. The manifest is one of the hashed files, so changing it alone changes the hash. Later visits run from the cache at your real origin. The cached code is read-only to your app, so it cannot rewrite itself out from under its grants.
+
+## Updates
+
+A grant is kept per origin, per capability, per set of patterns. When your app changes:
+
+- **Same files:** no prompt.
+- **Changed code, same authority:** the person is asked again.
+- **Wider authority:** the person is asked for it. Patterns are compared, not kinds, so going from `api.example.com:443` to `*:*` asks again.
+- **A lower version than ever installed:** the person is warned and chooses, so an older pinned bundle cannot be replayed to undo a fix.
+
+At a `.eth` name, an installed app keeps its version until the person accepts a new one. Orivon notices the name has moved, fetches only the new manifest, and asks whether to switch. If a Web3 Score provider has judged the new content, the question is "switch to the new version?"; if not, Orivon says why and offers Trust & Force update from the key icon. The running version keeps running meanwhile.
+
+Raise `version` every time you publish. A rebuilt release can add a build number: `1.4.2.1` sorts above `1.4.2`. [Publishing](./publishing) covers the rest of getting a new version out.

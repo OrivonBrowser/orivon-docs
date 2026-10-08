@@ -1,0 +1,328 @@
+---
+title: The capability API
+sidebar_label: Capability API
+sidebar_position: 3
+description: The orivon.* API by namespace, with the main calls, their signatures and short examples, and links to the TypeScript contracts that define it.
+---
+
+Your app reaches the network, files, keys and other sites through `window.orivon`. This page goes through each namespace with its purpose, its main calls and a short example. It is a guide, not the full reference: that is the TypeScript in [`src/contracts/`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/contracts/index.ts), which this page follows.
+
+| Namespace | What it does | Manifest key |
+|---|---|---|
+| `orivon.app` | Reads your manifest and grants, and asks again for a capability | none |
+| `orivon.net` | TCP, TLS, UDP, listening sockets and name lookup | `net` |
+| `orivon.fs` | Files in your app's private folder, and files the person picks | `fs` |
+| `orivon.id` | A key derived for your origin, for signing | `id` |
+| `orivon.secrets` | Encrypt and decrypt with a key the OS keyring protects | `secrets` |
+| `orivon.web` | Run code as another site, and set the script for pages you show | `web` |
+| `orivon.trust` | Ask the person's Web3 Score provider about other sites | `trust` |
+| `orivon.version` | The API version, `0` | none |
+
+## Ground rules
+
+**`orivon` is already there.** Orivon injects it into the page; there is nothing to import. Every Orivon tab has it, but a call succeeds only for what your origin was granted. Anything else rejects with `denied`.
+
+**Everything is asynchronous**, except `orivon.fs.readFileSync`. There is no "connecting" state: when the promise resolves, the socket is connected.
+
+**Handles, not ambient authority.** A call such as `connect()` checks the grant once and returns a handle. Later operations use the handle and are not checked again, which avoids a gap between a check and its use. Each handle records the grant that authorised it. Handles belong to your origin and cannot be handed to another.
+
+**Handles are WHATWG streams.** A socket has a `readable` and a `writable`, a `ReadableStream` and a `WritableStream` of `Uint8Array`. Backpressure is real: when your app stops reading, the broker stops reading the OS socket, and the remote side slows down. Node's shapes (`EventEmitter` sockets, `socket.end()`) live one layer up, in [the Node layer](./node-and-electron).
+
+**Bytes only.** Data in and out is `Uint8Array`. There are no encoding options; decode with `TextDecoder` or your own code.
+
+**Every handle** has an `id`, a `closed` promise that resolves on a clean close, and an idempotent `close()`.
+
+### Errors
+
+A failed call rejects with an `OrivonError` whose `code` is one of a closed set: `denied`, `revoked`, `unreachable`, `timeout`, `reset`, `closed`, `limit`, `invalid`, `notFound`, `exists`, `internal`, `unavailable`.
+
+```js
+try {
+  const socket = await orivon.net.connect({ host: 'mail.example', port: 25 })
+} catch (err) {
+  if (err.code === 'denied') showNotAllowed()
+  else if (err.code === 'unreachable') retryLater(err.platformCode) // such as 'ECONNREFUSED'
+  else throw err
+}
+```
+
+`denied` is the same for every reason a call is outside the grant, and never carries detail, so an app cannot map the edges of its own grant. Every other code carries a `platformCode`, the operating system's own detail, for an attempt your app was allowed to make. Treat `platformCode` as advisory.
+
+When the person switches a grant off, every handle it authorised closes at once, and every promise awaiting one rejects with `revoked`.
+
+On the visit where the person is asked, your app's code can start before they answer. A call made in that moment is refused; once they accept, the tab reloads with the grant in place. Handle `denied` at start-up without crashing.
+
+Limits per origin, such as open sockets, open files and operations in flight, are in [`limits.ts`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/contracts/limits.ts). Past one, a call rejects with `limit`.
+
+## `orivon.app`
+
+What your app declared and what it was actually granted.
+
+```ts
+manifest(): Promise<Manifest>
+grants(): Promise<readonly Grant[]>
+requestGrant(capability: { capability: string, patterns?: readonly string[] }): Promise<boolean>
+```
+
+`grants()` can report less than the manifest declares: the person may have chosen per capability, or switched one off. `requestGrant` may prompt the person, and resolves `false` if they decline or the capability is not declared.
+
+```js
+const grants = await orivon.app.grants()
+const canStore = grants.some((g) => g.capability === 'fs')
+if (!canStore && !(await orivon.app.requestGrant({ capability: 'fs' }))) {
+  useMemoryOnly()
+}
+```
+
+A `Grant` carries `origin`, `capability` (such as `tcp.connect` or `fs`), the granted `patterns`, and `grantedAt`.
+
+## `orivon.net`
+
+Sockets a web page cannot open. Every entry point returns a promise.
+
+```ts
+connect(opts: { host: string, port: number }): Promise<TcpSocket>
+connectSecure(opts: SecureConnectOptions): Promise<SecureTcpSocket>
+listen(opts: { port: number, scope?: 'local' | 'network' }): Promise<TcpServer>
+udpBind(opts: { port: number, scope?: 'local' | 'network' }): Promise<UdpSocket>
+lookup(opts: { hostname: string }): Promise<readonly LookupAddress[]>
+```
+
+### TCP
+
+`connect` opens a raw TCP connection under `tcp.connect`. The pattern check uses the address the name resolved to, and `socket.remoteAddress` reports that same address.
+
+```js
+const socket = await orivon.net.connect({ host: 'peer.example', port: 6881 })
+const writer = socket.writable.getWriter()
+await writer.write(handshake) // resolves once the broker has taken the bytes
+await writer.close()          // half-close: sends FIN, reading continues
+
+const reader = socket.readable.getReader()
+for (;;) {
+  const { value, done } = await reader.read()
+  if (done) break
+  handleMessage(value)
+}
+await socket.closed
+```
+
+Closing `writable` does not close `readable`; that is Node's `socket.end()`. `socket.close()` closes both directions. `setNoDelay` and `setKeepAlive` are on the handle.
+
+### TLS
+
+`connectSecure` opens a TCP connection and performs the TLS handshake in the broker, under `https.connect`. Your app never handles ciphertext: the handle carries plaintext, exactly as `connect`'s does, plus what the handshake established (`authorized`, `authorizationError`, `alpnProtocol`, `peerCertificate`).
+
+By default the broker validates the certificate chain against the runtime's default roots and the certificate against `host`, and a failure rejects with `unreachable`. The options carry Node's own `tls.connect` meanings under Node's names: `rejectUnauthorized`, `ca`, `cert`, `key`, `pfx`, `passphrase`, `servername`, and `alpnProtocols` for Node's `ALPNProtocols`. An option that loosens verification makes the broker also check the resolved address, so no option can widen what a grant reaches.
+
+```js
+const tls = await orivon.net.connectSecure({
+  host: 'electrum.example',
+  port: 50002,
+  rejectUnauthorized: false // a self-signed server: encrypted, not authenticated
+})
+console.log(tls.authorized, tls.authorizationError)
+```
+
+### Listening
+
+`listen` opens a TCP server. `scope` defaults to `'local'`, reachable only by programs on the same computer and bound to `127.0.0.1`. `'network'` binds every interface and needs the `network` grant. `port: 0` lets the OS choose; the real port is on `server.localPort` when the promise resolves.
+
+Incoming connections arrive as a stream. Each read accepts exactly one; if your app stops reading, the broker stops accepting.
+
+```js
+const server = await orivon.net.listen({ port: 9000 })
+const incoming = server.connections.getReader()
+for (;;) {
+  const { value: peer, done } = await incoming.read()
+  if (done) break
+  serve(peer).catch(console.error) // do not await: keep accepting
+}
+```
+
+Closing the server closes every socket it accepted that is still open.
+
+### UDP
+
+`udpBind` binds a UDP socket, with the same `scope` rules as `listen`. One `Datagram` (`data`, `address`, `port`, `family`) is exactly one packet.
+
+```js
+const udp = await orivon.net.udpBind({ port: 0 })
+const out = udp.writable.getWriter()
+await out.write({ data: query, address: '203.0.113.7', port: 6881, family: 'IPv4' })
+
+const reply = await udp.readable.getReader().read()
+if (!reply.done) handleReply(reply.value)
+```
+
+Loss is expected and is not an error. If your app reads too slowly, inbound datagrams are dropped and `droppedInbound` counts them. A send to an address outside the `udp.send` grant is dropped too: the write still succeeds, `droppedOutbound` counts it, and `refusals` streams one record per refused send. One peer outside the grant never tears down a working socket.
+
+### Name lookup
+
+`lookup` resolves a name in the broker and returns every address in the resolver's order. It is bounded by your network grants: your app may resolve only hosts its `tcp.connect`, `https.connect` or `udp.send` patterns name, and any host when one of them is `*:*`.
+
+### Your page's own `fetch`
+
+In an app tab, a cross-origin `fetch`, `XMLHttpRequest`, `EventSource` or `WebSocket` to a host your app is granted goes through the broker, so CORS does not stand in the way. A request to a host outside your grants takes the page's normal path.
+
+This path behaves like a native client rather than a browser: a routed `fetch` sends no `Origin` or `Referer`, keeps no cookies, and keeps the headers you pass to `fetch(url, { headers })`. It runs in the page's top frame only, so network calls you move into a worker or an iframe are not routed. The [routed path's notes](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/preload/routed/README.md) list every difference.
+
+## `orivon.fs`
+
+Files in a private folder for your app, rooted and confined in the broker. Paths are relative to that folder; `..`, absolute paths and links that escape are rejected with `denied`.
+
+```ts
+readFile(path: string): Promise<Uint8Array>
+writeFile(path: string, data: Uint8Array): Promise<void>
+readFileSync(path: string): Uint8Array
+open(path: string, flags: string): Promise<FileHandle>
+mkdir(path: string, opts?: { recursive?: boolean }): Promise<void>
+readdir(path: string): Promise<readonly string[]>
+stat(path: string): Promise<FileStat>
+rm(path: string, opts?: { recursive?: boolean }): Promise<void>
+rename(from: string, to: string): Promise<void>
+userSelected(opts: { directory: true }): Promise<DirectoryHandle | null>
+userSelected(opts?: { directory?: false, multiple?: boolean }): Promise<readonly FileHandle[]>
+```
+
+```js
+await orivon.fs.mkdir('notes', { recursive: true })
+await orivon.fs.writeFile('notes/today.txt', new TextEncoder().encode('Call the plumber'))
+const bytes = await orivon.fs.readFile('notes/today.txt')
+```
+
+`readFileSync` is the one synchronous call. It exists because a Node dependency reads its configuration that way before anything else runs. It blocks the page while it runs, so use it only where you must.
+
+A `FileHandle` has no cursor: every `read` and `write` names its position. That lets several writes to one file be in flight at once, as a torrent client writing pieces does.
+
+```js
+const file = await orivon.fs.open('downloads/movie.part', 'r+')
+await file.write({ position: pieceIndex * pieceLength, data: piece })
+const check = await file.read({ position: pieceIndex * pieceLength, length: piece.length })
+await file.close()
+```
+
+`readable()` and `writable()` on a `FileHandle` give streams for bulk transfer. `stat`, `truncate` and `sync` are there as well.
+
+**Files the person picks.** `userSelected` opens the OS picker. The person's choice is the consent. It needs a click or key press in your page a moment before; without one it rejects `denied` and shows nothing. It returns handles, never paths. A picked folder is a `DirectoryHandle` with the same file methods, confined to that folder, and it survives a restart until the person revokes it. Cancelling resolves `null` or an empty array, never an error.
+
+```js
+exportButton.addEventListener('click', async () => {
+  const folder = await orivon.fs.userSelected({ directory: true })
+  if (folder === null) return
+  await folder.writeFile('export.json', new TextEncoder().encode(JSON.stringify(data)))
+})
+```
+
+The picker refuses the browser's own data folder, a filesystem root and the home folder itself.
+
+## `orivon.id`
+
+A key derived for your origin alone, for your app's own cryptography. It needs no prompt beyond the `id` grant, because a per-origin key cannot link a person across apps. The seed it comes from is never exposed, and there is no way to export the key.
+
+```ts
+publicKey(opts: { curve: string }): Promise<Uint8Array>
+sign(opts: { curve: string, payload: Uint8Array }): Promise<Uint8Array>
+```
+
+```js
+const pub = await orivon.id.publicKey({ curve: 'P-256' })
+const sig = await orivon.id.sign({ curve: 'P-256', payload: new TextEncoder().encode(challenge) })
+```
+
+The curve must be listed in the manifest's `id.curves`. In this build the broker serves `P-256`: the public key is an uncompressed SEC1 point, and the signature is ECDSA over SHA-256 as raw `r || s`.
+
+
+## `orivon.secrets`
+
+An encrypt and decrypt pair keyed to your origin and protected by the OS keyring. Use it to keep a credential across restarts without holding a key yourself.
+
+```ts
+available(): Promise<boolean>
+encrypt(plaintext: Uint8Array): Promise<Uint8Array>
+decrypt(ciphertext: Uint8Array): Promise<Uint8Array>
+```
+
+```js
+if (await orivon.secrets.available()) {
+  const sealed = await orivon.secrets.encrypt(new TextEncoder().encode(apiKey))
+  await orivon.fs.writeFile('credentials.bin', sealed)
+}
+```
+
+`available()` is `false` without the grant, and when no OS keyring is reachable: then the key lasts only for the session, and what it encrypts could not be read after a restart. `encrypt` rejects `unavailable` in that case. `decrypt` rejects `invalid` for bytes your origin's key did not produce. Plaintext is capped in size (`secretBytes` in `limits.ts`): it is meant for keys and credentials, and bulk data belongs in `orivon.fs`.
+
+## `orivon.web`
+
+Other sites' documents, two ways.
+
+```ts
+openContext(origin: string, options?: { width?: number, height?: number }): Promise<WebContext>
+setEmbedScript(source: string): Promise<void>
+```
+
+**An isolated context** is an empty document whose origin is a site named in `web.contexts`. It runs that site's own script as that site would, with none of the person's data there. It is never displayed, has no `orivon.*` and no cookies, and every request it makes is checked against your app's `https.connect` grant.
+
+```js
+const ctx = await orivon.web.openContext('https://www.youtube.com')
+const origin = await ctx.evaluate('location.origin') // a JSON-compatible value
+await ctx.close()
+```
+
+`evaluate` runs one classic script and resolves with its completion value. A script that runs too long rejects with `timeout` and closes the context. Two contexts may be open at once, and an idle one closes on its own.
+
+**Embedded pages** are sites shown inside your own page, in a `<webview>` element, under `web.embed`. The element has its usual interface (`src`, `loadURL`, `executeJavaScript`, `insertCSS`, `send` and the `ipc-message` event). Shown pages run in a storage partition of your app's own, apart from the person's browsing, and kept across restarts.
+
+`setEmbedScript` sets a script that runs before each shown page's own code. It receives `orivonEmbed`, a bridge to your `<webview>`:
+
+```js
+await orivon.web.setEmbedScript(`
+  addEventListener('DOMContentLoaded', () => orivonEmbed.sendToHost('title', document.title))
+`)
+const view = document.querySelector('webview')
+view.addEventListener('ipc-message', (event) => {
+  if (event.channel === 'title') setTabTitle(event.args[0])
+})
+view.loadURL('https://docs.example/')
+```
+
+A shown page cannot open windows or start downloads on its own. Your `<webview>` receives an `orivon-popup` or `orivon-download` event describing what was asked, and your app decides what to do under its own grants.
+
+## `orivon.trust`
+
+What the Web3 Score provider the person chose says about another site.
+
+```ts
+websiteScore(address: string): Promise<{ provider: string | null, level: 1 | 2 | 3 | 4 | null }>
+```
+
+```js
+const { provider, level } = await orivon.trust.websiteScore('freetube.orivonstack.eth')
+if (level === null) showUnknown()
+else showLevel(level, provider)
+```
+
+`address` is what a page would open: `ipfs://<cid>`, `https://<name>.eth`, or a bare `<name>.eth`. A `.eth` name is resolved before the provider is asked, which can take seconds on a cold light client. The call never rejects because the provider could not help: no provider chosen, no judgement, or no answer all resolve with `level: null`. It rejects `denied` without the grant and `limit` when your origin asks too fast. See [the Web3 Score](/docs/using/web3-score) for what the levels mean.
+
+## Camera, microphone and screen
+
+`media.camera`, `media.microphone` and `media.screen` have no `orivon.*` call. Declare them in the manifest and use the web platform's own APIs:
+
+```js
+const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+```
+
+A kind your manifest does not declare is refused without a question.
+
+## The full reference
+
+| File | What it defines |
+|---|---|
+| [`capability-api.ts`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/contracts/capability-api.ts) | Every `orivon.*` call, with its rules |
+| [`handles.ts`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/contracts/handles.ts) | Sockets, servers, files, folders and contexts: close, backpressure, revocation |
+| [`manifest.ts`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/contracts/manifest.ts) | The manifest, every capability, and grants |
+| [`errors.ts`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/contracts/errors.ts) | The error codes and what each means |
+| [`trust.ts`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/contracts/trust.ts) | `orivon.trust` |
+| [`limits.ts`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/contracts/limits.ts) | Per-origin limits |
+
+Read them in the order errors, handles, manifest, capability API, trust. [`handle-examples.md`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/docs/architecture/handle-examples.md) has one working example per handle.

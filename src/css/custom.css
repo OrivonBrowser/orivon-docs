@@ -1,65 +1,324 @@
-/**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
+/*
+ * Orivon docs theme. Every colour, font and radius comes from the --orv-* tokens below;
+ * Infima's own variables are mapped onto them at the end of each block.
+ *
+ * The look is "Graphite": the Orivon browser's own chrome. Dark by default (#1e1f24 with
+ * #2b2c31 panels); light mode uses the browser's light chrome (#f2f2f7).
  */
 
-/* Light mode variables */
+/* ---------- Fonts (self-hosted, SIL Open Font Licence) ---------- */
+@font-face { font-family: 'Geist'; src: url('/fonts/geist-normal-100-900.woff2') format('woff2'); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Geist Mono'; src: url('/fonts/geist-mono-normal-100-900.woff2') format('woff2'); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url('/fonts/inter-normal-100-900.woff2') format('woff2'); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono-normal-100-800.woff2') format('woff2'); font-weight: 100 800; font-display: swap; }
+
+/* Shared by every look. */
 :root {
-  --ifm-color-primary: #5a3ec0; /* Primary color used for buttons, links, and highlights */
-  --ifm-color-primary-dark: #4b35a8; /* Darker shade for hover states or borders */
-  --ifm-color-primary-darker: #402d90; /* Even darker shade for accents */
-  --ifm-color-primary-darkest: #332470; /* Darkest shade for strong contrast elements */
-  --ifm-color-primary-light: #6a4ddb; /* Lighter shade for backgrounds or subtle highlights */
-  --ifm-color-primary-lighter: #7b5cf2; /* Even lighter shade for softer accents */
-  --ifm-color-primary-lightest: #8c6cfb; /* Lightest shade for very subtle elements */
-  --ifm-code-font-size: 95%; /* Font size for code blocks */
-  --docusaurus-highlighted-code-line-bg: rgba(90, 62, 192, 0.1); /* Background for highlighted lines in code */
+  --orv-radius-button: 10px;
+  --orv-radius-card: 12px;
+  --orv-radius-shot: 12px;
+  --orv-radius-step: 8px;
+  --orv-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --orv-font-display: 'Geist', 'Inter', system-ui, sans-serif;
+  --orv-display-weight: 700;
+  --orv-display-tracking: -0.025em;
+  --orv-font-eyebrow: 'Geist Mono', ui-monospace, monospace;
+  --orv-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
-[data-theme='dark'] {
-  --ifm-color-primary: #8c6cfb; /* Primary color for dark mode */
-  --ifm-color-primary-dark: #7b5cf2; /* Darker shade for hover states or borders */
-  --ifm-color-primary-darker: #6a4ddb; /* Even darker shade for accents */
-  --ifm-color-primary-darkest: #5a3ec0; /* Darkest shade for strong contrast elements */
-  --ifm-color-primary-light: #9b7aff; /* Lighter shade for backgrounds or subtle highlights */
-  --ifm-color-primary-lighter: #ab88ff; /* Even lighter shade for softer accents */
-  --ifm-color-primary-lightest: #bb96ff; /* Lightest shade for very subtle elements */
-  --docusaurus-highlighted-code-line-bg: rgba(140, 108, 251, 0.3); /* Background for highlighted code lines in dark mode */
+/* ---------- Graphite, light: the browser's light chrome ---------- */
+:root {
+  --orv-bg: #f2f2f7;
+  --orv-sidebar-bg: #e9e9f0;
+  --orv-surface: #fafafc;
+  --orv-ink: #1b1b20;
+  --orv-ink-dim: #5a5a66;
+  --orv-line: #dcdce4;
+  --orv-accent: #4f46e5;
+  --orv-emphasis: linear-gradient(90deg, #4f46e5 0%, #7c6cf2 100%);
+  --orv-highlight: #e4e3f3;
+  --orv-cta-bg: #1b1b20;
+  --orv-cta-bg-hover: #34343c;
+  --orv-cta-ink: #f2f2f7;
+  --orv-cta-shadow: none;
+  --orv-focus: #4f46e5;
+  --orv-step-bg: #1b1b20;
+  --orv-step-ink: #f2f2f7;
+  --orv-shot-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 26px 52px -30px rgba(0, 0, 0, 0.3);
+  --orv-hero-shadow: 0 4px 10px rgba(0, 0, 0, 0.06), 0 50px 100px -50px rgba(0, 0, 0, 0.4);
+  --orv-landing-bg: #f2f2f7;
+}
+
+/* ---------- Graphite, dark (default): the browser's dark chrome ---------- */
+html[data-theme='dark'] {
+  --orv-bg: #1e1f24;
+  --orv-sidebar-bg: #1a1b1f;
+  --orv-surface: #2b2c31;
+  --orv-ink: #e6e7e8;
+  --orv-ink-dim: #a4a5af;
+  --orv-line: #34353c;
+  --orv-accent: #a5b4fc;
+  --orv-emphasis: linear-gradient(90deg, #a5b4fc 0%, #c4b5fd 100%);
+  --orv-highlight: #2f3040;
+  --orv-cta-bg: #4f46e5;
+  --orv-cta-bg-hover: #5b55ec;
+  --orv-cta-ink: #ffffff;
+  --orv-cta-shadow: none;
+  --orv-focus: #a5b4fc;
+  --orv-step-bg: #2b2c31;
+  --orv-step-ink: #e6e7e8;
+  --orv-shot-shadow: 0 26px 52px -30px rgba(0, 0, 0, 0.85);
+  --orv-hero-shadow: 0 50px 100px -50px rgba(0, 0, 0, 0.9);
+  --orv-landing-bg: #1e1f24;
+}
+
+/* ---------- Infima mapped onto the tokens ---------- */
+html {
+  --ifm-color-primary: var(--orv-accent);
+  --ifm-color-primary-dark: var(--orv-accent);
+  --ifm-color-primary-darker: var(--orv-accent);
+  --ifm-color-primary-darkest: var(--orv-accent);
+  --ifm-color-primary-light: var(--orv-accent);
+  --ifm-color-primary-lighter: var(--orv-accent);
+  --ifm-color-primary-lightest: var(--orv-accent);
+  --ifm-background-color: var(--orv-bg);
+  --ifm-background-surface-color: var(--orv-bg);
+  --ifm-font-color-base: var(--orv-ink);
+  --ifm-heading-color: var(--orv-ink);
+  --ifm-font-family-base: var(--orv-font-body);
+  --ifm-heading-font-family: var(--orv-font-display);
+  --ifm-font-family-monospace: var(--orv-font-mono);
+  --ifm-link-color: var(--orv-accent);
+  --ifm-link-hover-color: var(--orv-ink);
+  --ifm-navbar-background-color: var(--orv-bg);
+  --ifm-navbar-shadow: none;
+  --ifm-navbar-link-color: var(--orv-ink-dim);
+  --ifm-navbar-link-hover-color: var(--orv-ink);
+  --ifm-footer-background-color: var(--orv-sidebar-bg);
+  --ifm-footer-color: var(--orv-ink-dim);
+  --ifm-footer-link-color: var(--orv-ink-dim);
+  --ifm-footer-link-hover-color: var(--orv-ink);
+  --ifm-footer-title-color: var(--orv-ink);
+  --ifm-toc-border-color: var(--orv-line);
+  --ifm-hr-border-color: var(--orv-line);
+  --ifm-table-border-color: var(--orv-line);
+  --ifm-table-stripe-background: transparent;
+  --ifm-table-head-background: var(--orv-surface);
+  --ifm-code-background: var(--orv-surface);
+  --ifm-code-font-size: 88%;
+  --ifm-menu-color: var(--orv-ink-dim);
+  --ifm-menu-color-active: var(--orv-ink);
+  --ifm-menu-color-background-active: var(--orv-highlight);
+  --ifm-menu-color-background-hover: var(--orv-highlight);
+  --ifm-color-emphasis-200: var(--orv-line);
+  --ifm-color-emphasis-300: var(--orv-line);
+  --ifm-global-radius: var(--orv-radius-card);
+  --ifm-line-height-base: 1.65;
+  --ifm-h1-font-size: 2.6rem;
+  --ifm-leading: 1.25rem;
+  --docusaurus-highlighted-code-line-bg: var(--orv-highlight);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--orv-bg);
+  color: var(--orv-ink);
+}
+
+::selection {
+  background: var(--orv-highlight);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--orv-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  border-bottom: 1px solid var(--orv-line);
+  backdrop-filter: saturate(1.4) blur(8px);
+  background: color-mix(in srgb, var(--orv-sidebar-bg) 90%, transparent);
+}
+
+.navbar__title {
+  font-family: var(--orv-font-display);
+  font-weight: var(--orv-display-weight);
+  letter-spacing: var(--orv-display-tracking);
+  font-size: 1.15rem;
+}
+
+.navbar__logo img {
+  border-radius: 7px;
+}
+
+.navbar__link {
+  font-weight: 500;
+}
+
+.navbar__link--active {
+  color: var(--orv-ink);
 }
 
 
+/* ---------- Doc pages ---------- */
+.markdown {
+  --ifm-h1-vertical-rhythm-bottom: 0.9;
+  font-size: 1.02rem;
+}
 
-/* Dark mode customizations */
-[data-theme='dark'] {
-  /* Navbar */
-  .navbar {
-    background-color: #1a1a1a;
-    color: #ffffff;
-  }
+.markdown h1,
+.markdown h2,
+.markdown h3 {
+  font-family: var(--orv-font-display);
+  font-weight: var(--orv-display-weight);
+  letter-spacing: var(--orv-display-tracking);
+}
 
-  /* Footer */
-  /*.footer {
-    background-color: #111111;
-    color: #cccccc;
-  }*/
+.markdown h1 {
+  font-size: clamp(2.1rem, 4vw, 2.75rem);
+  line-height: 1.1;
+}
 
-  /* Main page sections */
-  .main-wrapper {
-    background-color: #1a1a1a;
-    color: #eeeeee;
-  }
+.markdown h2 {
+  font-size: 1.55rem;
+  margin-top: 2.75rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--orv-line);
+}
 
-  /* Buttons */
-  /*.button {
-    background-color: #25c2a0;
-    color: #121212;
-  }*/
+.markdown h3 {
+  font-size: 1.15rem;
+}
 
-  /* Highlighted code line */
-  /*.theme-light .highlight-line,
-  .theme-dark .highlight-line {
-    background-color: rgba(255, 255, 255, 0.1);
-  }*/
+.markdown > p,
+.markdown li {
+  color: var(--orv-ink);
+}
+
+.orv-lead {
+  font-size: 1.22rem;
+  line-height: 1.55;
+  color: var(--orv-ink-dim) !important;
+  max-width: 40rem;
+}
+
+.markdown table {
+  display: table;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--orv-line);
+  border-radius: var(--orv-radius-card);
+  overflow: hidden;
+  font-size: 0.94rem;
+}
+
+.markdown table thead tr {
+  background: var(--orv-surface);
+}
+
+.markdown table th,
+.markdown table td {
+  border: 0;
+  border-bottom: 1px solid var(--orv-line);
+  padding: 0.7rem 0.95rem;
+  vertical-align: top;
+}
+
+.markdown table tr:last-child td {
+  border-bottom: 0;
+}
+
+.markdown table th {
+  font-weight: 650;
+  text-align: left;
+}
+
+.markdown code {
+  border: 1px solid var(--orv-line);
+  border-radius: 6px;
+  padding: 0.1rem 0.35rem;
+}
+
+.markdown pre code,
+.prism-code code {
+  border: 0;
+  padding: 0;
+}
+
+.theme-code-block {
+  border: 1px solid var(--orv-line);
+  border-radius: var(--orv-radius-card) !important;
+  box-shadow: none;
+}
+
+.theme-admonition {
+  border-radius: var(--orv-radius-card);
+  border-width: 1px;
+  border-style: solid;
+  border-left-width: 4px;
+}
+
+/* ---------- Sidebar and table of contents ---------- */
+.theme-doc-sidebar-container {
+  border-right-color: var(--orv-line) !important;
+  background: var(--orv-sidebar-bg);
+}
+
+.menu {
+  padding: 1.25rem 0.75rem !important;
+}
+
+.menu__list-item-collapsible .menu__link--sublist,
+.theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link {
+  font-family: var(--orv-font-eyebrow);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--orv-ink-dim);
+  font-weight: 600;
+  background: none !important;
+  cursor: default;
+}
+
+.theme-doc-sidebar-item-category-level-1 {
+  margin-bottom: 0.9rem;
+}
+
+.menu__link {
+  font-size: 0.94rem;
+  border-radius: 8px;
+}
+
+.menu__link--active:not(.menu__link--sublist) {
+  font-weight: 600;
+}
+
+.table-of-contents__link--active {
+  color: var(--orv-accent);
+}
+
+.pagination-nav__link {
+  border-color: var(--orv-line);
+  border-radius: var(--orv-radius-card);
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  border-top: 1px solid var(--orv-line);
+  background: var(--orv-sidebar-bg);
+}
+
+.footer__title {
+  font-family: var(--orv-font-display);
+  font-weight: var(--orv-display-weight);
+}
+
+.footer__copyright {
+  font-size: 0.85rem;
+  color: var(--orv-ink-dim);
 }

@@ -1,0 +1,85 @@
+---
+title: Quick start
+sidebar_label: Quick start
+description: Open your first app from a .eth name, grant it in plain words, and see what Orivon checked for you.
+---
+
+# Quick start
+
+Five minutes from a fresh install to a desktop app running in a tab. If Orivon is not installed yet,
+start with [Download and install](/docs/start/download).
+
+## 1. Enter Orivon
+
+The first launch shows a welcome screen with one button, **Enter Orivon**. A short question follows
+about anonymous usage statistics; choose either answer, it changes nothing else. The new-tab page
+opens with a search box, a row of featured apps and your bookmarks.
+
+## 2. Open an app by its name
+
+Type this in the address bar and press Enter:
+
+```text
+freetube.orivonstack.eth
+```
+
+Before anything loads, Orivon proves the name. A light client on your machine checks the `.eth`
+record against the Ethereum chain, and every block of the app is hashed against its content
+identifier as it arrives. No server along the way is trusted to be right.
+
+## 3. Read the question, then decide
+
+FreeTube is a desktop app, so it needs more than a web page may have. Orivon shows one question, in
+plain words, covering everything the app declared:
+
+<Shot
+  src="/img/product/consent.webp"
+  alt="Element asking, in plain words, for unlimited network access, the camera, the microphone and screen sharing, with Deny and Allow"
+  width={1440}
+  height={900}
+  caption="One question, before the app is installed. This one is Element's."
+/>
+
+Choose **Allow** and the app is installed: its files are cached and pinned to the exact version you
+accepted. Choose **Deny** and nothing is granted.
+
+## 4. Use it
+
+FreeTube now runs in the tab as its desktop version does. Next time you open the name, it starts
+from your disk, even with the network unplugged.
+
+<Shot
+  src="/img/product/freetube.webp"
+  alt="FreeTube running in an Orivon tab at freetube.orivonstack.eth, with a Web3 mark in the address bar"
+  width={1440}
+  height={900}
+  caption="Upstream FreeTube, unmodified, in a tab."
+/>
+
+## 5. Check what you are on
+
+Click the shield in the address bar: the [Web3 Score](/docs/using/web3-score) panel says what your
+machine verified. The **Permissions** button beside it lists every power the app holds, each with
+its own switch.
+
+## Try the others
+
+| App | Address | What it is |
+|---|---|---|
+| Element | `element.orivonstack.eth` | Encrypted Matrix chat |
+| The Lounge | `thelounge.orivonstack.eth` | An IRC client whose own Node.js server runs inside the tab |
+| AirGap Vault | `airgapvault.orivonstack.eth` | Secret storage for offline signing |
+| ASGARDEX | `asgardex.orivonstack.eth` | A THORChain wallet and cross-chain swap client |
+| Orivon Explore | `explore.orivonstack.eth` | A directory of Web3 sites, each with its Web3 Score |
+
+:::caution Early access
+
+These apps are early-access ports. Keep funds you cannot afford to lose out of the wallets for now.
+
+:::
+
+## Next
+
+- [Apps from a link](/docs/using/apps): how an address becomes an app, and how updates work.
+- [Permissions in plain words](/docs/using/permissions): changing your mind later.
+- [Building for Orivon](/docs/build/overview): your own app, from a frontend and a manifest.

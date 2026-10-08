@@ -1,0 +1,70 @@
+---
+title: Web3 Score
+sidebar_label: Web3 Score
+description: The shield in Orivon's address bar, what each level means, which levels your machine measures, and who judges the rest.
+---
+
+# Web3 Score
+
+A shield in the address bar tells you what you are on: plain Web2, content you can verify, or open
+and trustless Web3. You no longer have to research a site to know how much of it you are taking on
+trust.
+
+<Shot
+  src="/img/product/score-popover.webp"
+  alt="The Web3 Score panel for explore.orivonstack.eth, with levels 1 to 4 and what each one means"
+  width={380}
+  height={461}
+  card
+/>
+
+## The levels
+
+| Level | What it means | Mark |
+|:---:|---|:---:|
+| 1 | A standard website | Web2 |
+| 2 | The site publishes a hash of its files ([DDOC](#ddoc)), so you can check you got exactly what its owner published | Web2.5 |
+| 3 | Its code is open source and runs nothing external without your informed consent | Web2.5 |
+| 4 | Trustless in its operations and connections | Web3 |
+
+The shield's colour follows the level, from red at level 1 to green at level 4. A level nobody has
+judged yet shows a grey question mark rather than a guess.
+
+## Measured or judged
+
+Levels 1 and 2 are **measured by your own machine**: Orivon sees how the page was delivered and
+whether its files match what the owner published.
+
+Levels 3 and 4 need a judgement no browser can make alone, such as whether code is open source. They
+come from a **score provider you choose**. The panel names the provider behind every judged level,
+and Orivon never presents a judged level as a measured one.
+
+## Choosing a provider
+
+**Settings > Web3** holds the provider address. Orivon's own provider is the default; you can enter
+another or use none. A provider can live at any address Orivon opens: `https://`, `ipfs://` or a
+`.eth` name.
+
+## What a provider learns
+
+Nothing about where you are. A lookup asks for a whole group of sites, one of 16 or 256 buckets, and
+your machine finds the site in the answer itself. The provider never learns which site you are on.
+
+Judgements attach to a site's content, never to its domain name. A site whose files can change
+without notice has nothing stable to judge, which is why level 2 comes first.
+
+## DDOC
+
+*Domain Data Ownership Confirmation.* A site publishes the hash tree of its files and anchors it in
+its ENS record. Orivon checks that the files you have installed match it, and the score panel shows
+the result.
+
+DDOC is evidence, not a gate: a mismatch is shown, and the page still loads. Publishing a site?
+[Publishing on IPFS and ENS](/docs/build/publishing) explains how to reach level 2.
+
+## Run your own provider
+
+A provider is a static site of JSON files that follows the open standard `orivon-web3-score/1`.
+[web3-score-manager](https://github.com/OrivonBrowser/web3-score-manager) builds one, and the
+[provider specification](https://github.com/OrivonBrowser/orivon-mvp/blob/main/docs/architecture/web3-score-provider.md)
+describes the format.

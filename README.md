@@ -1,40 +1,30 @@
-# Orivon Documentation
+# Orivon documentation
 
-The official design documentation of Orivon Browser, a Web3 centric, trustless, user-friendly browser.
+The source of [docs.orivonstack.com](https://docs.orivonstack.com), the documentation for
+[Orivon](https://github.com/OrivonBrowser/orivon-mvp), a browser built for owning.
 
-*Made with [Docosaurus](https://docusaurus.io/docs/category/guides)*
+Built with [Docusaurus](https://docusaurus.io/). Pages are in `docs/`, the sidebar in `sidebars.js`,
+the theme in `src/css/custom.css`, and shared page components (download button, screenshots, cards)
+in `src/components/`.
+
+## Run it locally
+
+```bash
+npm install
+npm start        # live preview at http://localhost:3000
+npm run build    # static site in build/, fails on any broken link
+```
+
+## Writing for these docs
+
+- Describe what Orivon does today. A feature that is not in the browser belongs on the roadmap, in
+  one line, and nowhere else.
+- Say what something does, not how good it is. Short sentences, the mechanism in plain words,
+  British spelling (as in the browser's README).
+- Use real screenshots from the browser, and real addresses (`freetube.orivonstack.eth`) or
+  `.example` names in examples.
 
 ## Contributing
 
-You can open an issue or a pull request to propose changes, which are always highly appreciated
-
-Anyway we advise to discuss these before in our [Discord](https://discord.gg/DuRg87MvgD) server on #technical-chat
-
-### Guidelines 
-
-When you write your contribution, especially when you are contributing into the Technical Design, for most decisions you take, keep a note of the reasons and explanation for each decision you make.
-
-Explaining to us with clear notes your design thinking flow boosts a lot your contribute power and are part of a quality contribution
-
-## Installation
-
-```bash
-git clone https://github.com/OrivonBrowser/orivon-docs/
-cd orivon-docs && npm i
-```
-
-## Local Development
-
-```bash
-npm run start
-```
-
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
-
-## Build
-
-```bash
-npm run build
-```
-
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+Open an issue or a pull request. For larger changes, talk to us first on
+[Discord](https://discord.gg/DuRg87MvgD).

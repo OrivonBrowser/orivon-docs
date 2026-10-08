@@ -1,0 +1,94 @@
+---
+title: Publishing an app or site
+sidebar_label: Publishing
+sidebar_position: 5
+description: Publish an Orivon app or site on IPFS behind a .eth name or on an HTTPS host, publish its hash tree (DDOC) for the Web3 Score, and load it from a local folder while you develop.
+---
+
+This page covers putting your app or site where Orivon can open it: on IPFS behind a `.eth` name, or on an ordinary HTTPS host. It also covers how Orivon checks what it receives, how to publish the hash tree the Web3 Score reads, and how to run your app from a local folder while you build it.
+
+## Prepare the folder
+
+Whatever the host, the folder you publish holds:
+
+- your entry HTML, with `<link rel="orivon-manifest" href="/.well-known/orivon.json">` in its `<head>`;
+- `/.well-known/orivon.json`, the [manifest](./manifest), whose `assets` lists every file except the manifest, the entry and the hash tree;
+- `/.well-known/orivon-ddoc.json`, the published hash tree, described [below](#ddoc-publish-your-hash-tree).
+
+A few rules make a folder publishable:
+
+- **Serve plain bytes.** A static host or an IPFS gateway hands files back as they are, with nothing to set `Content-Encoding`, so do not ship pre-compressed files.
+- **Use hash routing.** A static host answers a path with no file behind it with an error.
+- **Name files so they mean one thing everywhere.** Orivon refuses a bundle with a Windows device name (`CON`, `NUL`, `COM1` and the like), a name ending in a dot or a space, or two names that differ only in case or Unicode form, on every platform.
+- **Stay within the caps:** 64 MiB per file, 512 MiB and 4,096 files per bundle.
+- **Set `domain`** to the name you publish at, and **raise `version`** each time you publish.
+
+orivon-ports' `orivon-port hash <dir>` writes the `assets` list and the hash tree for a prepared folder, and `--check` confirms a folder still matches them. Write the manifest before hashing: its bytes are part of the hash.
+
+## On IPFS behind a .eth name
+
+1. Add the folder to IPFS as one directory. Its root CID commits to every file under it.
+2. Set your `.eth` name's contenthash record to that CID. A contenthash can also name an IPNS key, or a DNS name followed through DNSLink.
+3. Open the name in Orivon.
+
+Your app's origin is then `https://<name>.eth`. Grants, storage and the derived key all belong to that origin.
+
+How Orivon checks it:
+
+- **The name is proven.** A light client on the person's machine proves the name's contenthash from Ethereum state, starting from a checkpoint shipped with each release. No RPC provider is trusted to tell the truth.
+- **The content is checked.** Every IPFS block is hashed against its CID before it is used. A gateway can refuse to answer; it cannot hand over a wrong byte unnoticed.
+- **Only checked bytes are served,** by a separate process, the verifier host.
+- **A DNSLink hop is shown as unproven,** because ordinary DNS can be forged on the path.
+
+From there your app is an ordinary Orivon app: the same hint, the same prompt and the same pin, which also records the CID. In another browser a link to `<name>.eth.limo` goes through the eth.limo gateway; in Orivon, `.eth.limo` and `.eth.link` addresses open as the `.eth` name. The servers involved still see what they are asked for, and [names and content](/docs/using/names-and-content) lists what each one learns.
+
+**A new version** is a new CID: add the new folder and point the contenthash at it. An installed app keeps its version until the person accepts the new one, as [the manifest page](./manifest#updates) describes.
+
+## On an HTTPS host
+
+- **Give the app a hostname of its own.** `/.well-known/` belongs to the host, so apps sharing a host share one origin, one set of grants, one storage area and one key.
+- **Use `https` on a public address.** Orivon installs apps only from such origins.
+- Orivon fetches the manifest, the entry and every listed asset, pins their hash, and serves later visits from its cache at your real origin. When the files change, the person is asked again before the changed code runs.
+
+## DDOC: publish your hash tree
+
+DDOC, Domain Data Ownership Confirmation, is a site publishing the hashes of its files so a browser can check it received exactly what the owner published. You publish it at `/.well-known/orivon-ddoc.json`:
+
+```json
+{
+  "bundleHash": "sha256:<64 lowercase hex>",
+  "leaves": {
+    "/.well-known/orivon.json": "sha256:<64 lowercase hex>",
+    "/index.html": "sha256:<64 lowercase hex>",
+    "/app.js": "sha256:<64 lowercase hex>"
+  }
+}
+```
+
+`bundleHash` is the root over every file in the bundle, and `leaves` holds one digest per file, keyed by its path, the manifest and entry included. The tree file is not itself a leaf. [`bundle-hash.md`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/docs/architecture/bundle-hash.md) gives the exact construction and test vectors for anyone writing their own tool. A malformed file reads as "not published", never as an error.
+
+DDOC is evidence. It never blocks a load.
+
+- **On an HTTPS host,** Orivon compares your published tree with the bundle it pinned. When the root and every file match, and the page is served from the pinned files, the Web3 Score shows Level 2. When they differ, it shows Level 1 and names the files that differ. The tree sits on your own host, so a match says the files are what that host publishes, not who owns the domain.
+- **On IPFS behind a `.eth` name,** every file is already checked against the content the name points to on Ethereum, which meets Level 2 on its own.
+- **Levels 3 and 4** are judged by the Web3 Score provider the person chose. A judgement attaches to a content identity, a CID or a bundle hash, never to a name, so a site without DDOC gives a provider nothing to judge. Orivon counts a judged level only at the `domain` your manifest names.
+
+[The Web3 Score](/docs/using/web3-score) explains the levels as people see them.
+
+## Develop from a folder
+
+You do not need to publish to test.
+
+**A local static server.** Serve your folder from `127.0.0.1`, `[::1]` or a `localhost` name and open that address in Orivon. The hint raises the prompt, and the origin is granted without being installed: nothing is hashed or pinned, so your server keeps serving the files and a reload shows your change. Grants on a loopback origin last the session. This works in every build of Orivon, packaged ones included.
+
+**A file on disk.** Open your entry HTML from disk. A file that links a manifest is asked about once per run, in a warning whose Allow needs two presses. Its grants and data are kept with its exact path, so a moved or renamed file is asked again.
+
+**Developer mode.** Run Orivon from source with `npm run dev`, which sets `ORIVON_DEV_ORIGINS=1`. It adds Inspect Element to the context menu, and marks a loopback origin that serves `/.well-known/orivon-ddoc.json` as meeting DDOC, with the Web3 Score page saying it is marked only because of developer mode. It also reads `ORIVON_ETH_NAMES_FILE`, a JSON map of developer `.eth` names to local ports, which orivon-ports' `orivon-port names` writes:
+
+```bash
+ORIVON_ETH_NAMES_FILE=/absolute/path/to/orivon-ports/out/names.json npm run dev
+```
+
+`http://<name>.eth` then reaches your local server. A name in that file resolves nothing real, and the shell reads the file once, at start-up.
+
+Load only code you trust, in developer mode or not. Orivon's model is authorisation, not containment, and [how it works](./how-it-works) says what that means.

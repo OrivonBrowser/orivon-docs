@@ -1,0 +1,59 @@
+---
+title: Privacy and your data
+sidebar_label: Privacy and your data
+description: What stays on your machine, the one Orivon server and what reaches it, and every other server Orivon talks to.
+---
+
+# Privacy and your data
+
+Your history, bookmarks, passwords, keys and app data stay on your computer. There is no Orivon
+account, no cloud and no sync service, so there is nothing of yours on a server of ours to lose,
+sell or hand over.
+
+## The one Orivon server
+
+Orivon runs a single small endpoint, `telemetry.orivonstack.com`, in the EU. It is not in the path of
+using any app or site, and it receives only two things, each after an explicit choice of yours.
+
+### Usage statistics, if you say yes
+
+The first launch asks once, with two equal buttons and neither preselected. **Settings > Privacy**
+has the switch, and shows the literal text of each message before and after it is sent.
+
+If you turn it on, Orivon sends a monthly count of time:
+
+- how long the browser was in use, and how long it was running in the background;
+- how that time splits between Web3, Web2.5 and ordinary Web2 sites;
+- for public Web3 and Web2.5 sites only, their names and the seconds spent on each;
+- the Orivon version, and the country of your time zone (never from your IP address).
+
+It never sends page addresses, search text, page titles or your history. Ordinary Web2 sites are
+never named, not even on your own computer. Your IP address is never written to disk. A private
+window measures and sends nothing. One button deletes what the server holds.
+
+### Bug reports you send
+
+A report leaves only when you write one and press **Send**. The form shows the full text first, with
+a box for each part you can leave out.
+
+## Other servers Orivon talks to
+
+These are not ours, and we receive nothing from them. Each one is there because of something you
+did or switched on:
+
+| When | Who | What they see |
+|---|---|---|
+| You open a `.eth` name | Ethereum RPC and beacon servers | The name you open |
+| You open IPFS content or a `.eth` site | IPFS gateways, and for some names a DNS-over-HTTPS resolver | The content or name you open |
+| A page loads | Your Web3 Score provider | A group of 16 or 256 sites, never the site itself |
+| You switch on the update check | GitHub | That a check happened |
+| You install Chrome Web Store extensions | Google's update server | The extensions' identifiers |
+| You type in the address bar with suggestions on | Your search engine | What you type |
+
+Every one of them sees your IP address, as any server you connect to does. **Settings > Web3** lists
+the Web3 servers and what each one learns.
+
+## The full notice
+
+The [privacy notice](https://github.com/OrivonBrowser/orivon-mvp/blob/main/docs/privacy/notice.md)
+lists every field, how long each is kept and your rights. Questions go to privacy@orivonstack.com.

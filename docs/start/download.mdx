@@ -1,0 +1,55 @@
+---
+title: Download and install
+sidebar_label: Download and install
+description: Packages for Linux, Windows and macOS, what to click on first run, and how to run Orivon from source.
+---
+
+# Download and install
+
+Orivon runs on Linux, Windows and macOS. The packages below come from the latest release on
+GitHub; your own platform is highlighted.
+
+<DownloadTable />
+
+Every release is also published on IPFS, with its `ipfs://` address in the release notes, and is
+available at `download.orivonstack.eth`.
+
+## First run
+
+**Linux.** Install the `.deb` with your package manager, or make the AppImage executable and run
+it. Only the `.deb` can register Orivon as your default browser.
+
+**Windows.** The installer is per user and needs no administrator. It is not yet signed with a
+bought certificate, so SmartScreen warns once: choose **More info**, then **Run anyway**.
+
+**macOS.** The app is signed ad hoc and not notarised, so the first open is refused. Open
+**System Settings > Privacy & Security** and choose **Open Anyway**. Later opens work normally.
+
+On first launch Orivon asks one question: whether to send anonymous usage statistics. Both
+buttons are equal and neither is preselected. [Privacy and your data](/docs/using/privacy) says
+exactly what would be sent.
+
+## Bring your browser with you
+
+Settings imports bookmarks and history from Chrome, Chromium, Edge, Brave and Firefox, and
+passwords from a CSV file. Chrome extensions install from the Chrome Web Store as they do in
+Chrome. See [Everyday browsing](/docs/using/everyday-browsing).
+
+## Run from source
+
+On any system with Node.js 22.13 or newer, and nothing else:
+
+```bash
+git clone https://github.com/OrivonBrowser/orivon-mvp.git
+cd orivon-mvp
+npm install
+npm start         # your real profile, as an installed build
+# npm run dev     # hot reload, on a throwaway profile each launch
+```
+
+No compiler is needed on any system; a check fails the build if a dependency would need one.
+
+## Updates
+
+Orivon can check for a new release and tell you when one is out. The check is off by default and
+never installs anything: it links to the release page, and you download the new package yourself.
