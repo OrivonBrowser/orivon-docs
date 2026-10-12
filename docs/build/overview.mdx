@@ -1,0 +1,105 @@
+---
+title: Building for Orivon
+sidebar_label: Overview
+sidebar_position: 1
+description: What an Orivon app is, the three ways to make one, and a complete example from manifest to socket.
+---
+
+This section shows you how to write an app for Orivon, port an existing Node.js or Electron app to it, and publish either one at a `.eth` name. This page gives you the shape of an app, a working example, and where to go next.
+
+## What an app is
+
+An Orivon app is an ordinary web frontend at a URL, plus a manifest. The manifest is a JSON file at `/.well-known/orivon.json` that names the app and declares the capabilities it needs: which hosts it may reach, whether it may listen on a port, keep files, or sign with a key.
+
+When someone opens the app, Orivon reads the manifest and asks them once, in plain words, before the app's own code runs. The capability broker then checks every socket, file and signature against what they granted. Whatever the manifest does not declare, the app can never get, not even from the person.
+
+There is no installer and no account. Orivon fetches the app's files, hashes them, pins that hash and caches the files, so later visits run from the person's disk and a changed file cannot slip in unnoticed.
+
+A page without a manifest stays an ordinary page.
+
+## Three ways in
+
+- **Write a new app.** Use any frontend stack. Add a manifest, declare what you need, and call `window.orivon`. Start with [the manifest](./manifest) and [the capability API](./capabilities).
+- **Port a Node.js or Electron app.** Node's `net`, `tls`, `dgram`, `fs`, `http`, `child_process`, `worker_threads` and `node:sqlite` map onto the same capabilities. A port is a recipe, a manifest and one bridge file; the upstream code stays unmodified. See [Node.js and Electron apps](./node-and-electron).
+- **Publish on IPFS and ENS.** Put the app's files on IPFS and point a `.eth` name at them. Orivon proves the name with a light client on the person's machine and hashes every block against its CID. See [publishing](./publishing).
+
+## A complete example
+
+An IRC client that talks to Libera.Chat over TLS. The manifest, served at `/.well-known/orivon.json`:
+
+```json
+{
+  "orivonApiVersion": 0,
+  "id": "chat.example.irc",
+  "name": "My IRC client",
+  "version": "1.0.0",
+  "entry": "index.html",
+  "capabilities": {
+    "net": { "https": { "connect": ["irc.libera.chat:6697"] } }
+  }
+}
+```
+
+The entry page links it, which is the only thing that tells Orivon to look:
+
+```html
+<link rel="orivon-manifest" href="/.well-known/orivon.json">
+```
+
+Then use what you declared:
+
+```js
+const irc = await orivon.net.connectSecure({ host: 'irc.libera.chat', port: 6697 })
+const out = irc.writable.getWriter()
+await out.write(new TextEncoder().encode('NICK satoshi\r\nUSER satoshi 0 * :satoshi\r\n'))
+```
+
+And read what the server sends back:
+
+```js
+const reader = irc.readable.getReader()
+const text = new TextDecoder()
+for (;;) {
+  const { value, done } = await reader.read()
+  if (done) break
+  console.log(text.decode(value, { stream: true }))
+}
+```
+
+What happens along the way:
+
+1. The page loads. Orivon sees the `orivon-manifest` hint and fetches the manifest from the page's own origin.
+2. The person sees one prompt. It leads with the origin, shows the app's claimed name on its own line, and asks to "Connect to irc.libera.chat".
+3. `connectSecure` reaches the broker. It checks `irc.libera.chat` against the granted `https.connect` patterns, performs the TLS handshake, verifies the certificate, and hands the page a socket that carries plaintext.
+4. A connection to any other host rejects with `denied`.
+
+`https.connect` is the grant for any TLS connection the broker terminates, so it covers IRC over TLS as well as HTTPS.
+
+## Compatibility tiers
+
+What you get for free depends on the form the app already has.
+
+1. **Already a web app.** The frontend runs as it is. Add a manifest when it needs something a web page cannot do.
+2. **A Node.js or Electron desktop app.** The frontend runs as it is. Node calls go through Orivon's Node layer, and one small bridge file per app stands in for its desktop helper. FreeTube, Element, The Lounge, AirGap Vault and ASGARDEX are this tier.
+3. **A native desktop app built on Qt, the JVM or another native toolkit.** Not supported today. Native desktop apps in a tab are on the [roadmap](/docs/project/roadmap).
+4. **An app that does not exist yet.** Write the frontend, and use `orivon.*` for what a web page cannot do.
+
+What qualifies an app is the environment its code runs in, not its language. WebAssembly compiled from Rust, C or Go qualifies on the same terms as JavaScript. Native machine code never runs for an app.
+
+## Before you start
+
+- The API version is `0`. While it is `0`, breaking changes are permitted. The [`src/contracts/`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/contracts/index.ts) types are the reference for what exists today.
+- Orivon's boundary is authorisation, not containment. A grant gives your app real power on the person's machine, so declare the narrowest set your app needs. [How it works](./how-it-works) says what this means.
+- Orivon is in early access. The [roadmap](/docs/project/roadmap) says what is expected next.
+
+## Where to go next
+
+| Page | What it gives you |
+|---|---|
+| [The manifest](./manifest) | Every field, the capability grammar, what the person reads, and how updates work |
+| [The capability API](./capabilities) | The `orivon.*` namespaces, their main calls, and examples |
+| [Node.js and Electron apps](./node-and-electron) | The Node layer, native code as WebAssembly, and porting with orivon-ports |
+| [Publishing](./publishing) | IPFS and ENS, HTTPS hosting, DDOC, and developing from a folder |
+| [How it works](./how-it-works) | The call path, the security boundary, and the interface built to last |
+
+For what the person on the other side of the prompt sees, read [permissions](/docs/using/permissions) and [the Web3 Score](/docs/using/web3-score).

@@ -1,0 +1,122 @@
+---
+title: Node.js and Electron apps
+sidebar_label: Node.js and Electron
+sidebar_position: 4
+description: Run an existing Node.js or Electron app in Orivon from a URL with its code unmodified, through the Node layer, native code as WebAssembly, the Electron layer and orivon-ports.
+---
+
+An existing Node.js or Electron app can run in Orivon from a URL with its own code unmodified. This page covers the Node layer that maps Node's modules onto `orivon.*`, how native addons and child processes run, the Electron layer, and how [orivon-ports](https://github.com/OrivonBrowser/orivon-ports) turns an upstream app into an Orivon app.
+
+## Why a port needs so little
+
+An Electron app is two programs: a web page, and a privileged helper (the main process and its preload) that does what a web page is not allowed to do. The page asks the helper for favours through names the app invented, such as `window.ftElectron.chooseDefaultFolder()`.
+
+Orivon takes the helper's place and grants those powers to the page directly. The app's renderer is kept, and its preload and main process are dropped. The page still calls the names its preload defined, so each port ships one small bridge file that answers them over `orivon.*`. Node code the app runs goes through the Node layer.
+
+## The Node layer
+
+`orivon-node-shim` rebuilds Node's APIs over `orivon.*`, so ordinary Node libraries run unmodified in an app's tab, under the app's grants.
+
+| Node module | What it runs over |
+|---|---|
+| `net`, `tls`, `dns` | `orivon.net`: `connect`, `connectSecure`, `listen`, `lookup` |
+| `dgram` | `orivon.net.udpBind` |
+| `fs` | `orivon.fs`, with the app's files under the virtual root `/orivon/app` |
+| `http`, `https` | A client, and `http.createServer`, over the shim's own sockets and listener |
+| `child_process` | Web Workers for `fork`, WebAssembly programs for `spawn` |
+| `worker_threads` | Web Workers, with `parentPort`, `workerData` and message ports |
+| `node:sqlite` | SQLite's WebAssembly build, with database files in the app's files |
+
+The shim also carries what a dependency graph needs just to load: `Buffer`, `stream`, `events`, `path`, `os`, `crypto`, `zlib` (gzip and deflate only), `util`, `url`, `querystring`, `string_decoder`, `timers`, `assert` and more. That is enough to run a Node web server with Express and Socket.IO inside a tab, as The Lounge does.
+
+- **Errors keep their Node shape.** The broker passes the operating system's code through, so `err.code === 'ECONNREFUSED'` still works.
+- **A missing piece fails by name.** A member the shim has not built throws a named error when called, never when read, so feature detection keeps working.
+- **Synchronous file calls are narrow.** The page has `readFileSync` and `existsSync`. A Worker of an app whose manifest sets `crossOriginIsolated: true` has every synchronous `fs` call, plus `spawnSync`, `execSync` and `execFileSync`.
+
+### Bundling against the shim
+
+The shim ships an esbuild plugin that points every Node builtin at it. A port finds an Orivon checkout through the `ORIVON_MVP_ROOT` environment variable, and runs the build with Node 22.18 or later:
+
+```js
+import { build } from 'esbuild'
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
+
+const plugin = join(process.env.ORIVON_MVP_ROOT, 'src/shim/bundler/esbuild-plugin.ts')
+const { orivonShimPlugin } = await import(pathToFileURL(plugin).href)
+
+await build({
+  entryPoints: ['server/index.ts'],
+  bundle: true,
+  platform: 'node',
+  format: 'esm',
+  plugins: [orivonShimPlugin()]
+})
+```
+
+A builtin the shim lacks fails the build and names the file that imported it. With another bundler, alias each specifier exactly, `node:` forms included.
+
+## Native code as WebAssembly
+
+Nothing an app ships runs as machine code. Native addons and child processes run as WebAssembly or in Web Workers, inside the app's tab, under the grants it already holds, so they gain nothing the app's JavaScript lacks.
+
+- **A native addon** loads as its WebAssembly build, found beside the `.node` path: `<file>.node.wasm`, `<file>.wasm` (emnapi) or `<file>.wasm32-wasi.wasm` (napi-rs), built for `wasm32-wasip1`. A napi-rs package that publishes a `-wasm32-wasi` build runs as it is once the manifest sets `crossOriginIsolated: true`. A library that exists only as a native addon often has a WebAssembly alternative, such as `sql.js` for `better-sqlite3`.
+- **`spawn`** runs a `wasm32-wasip1` program at the command's path, or with `.wasm` added; it reaches files, not sockets. A program that needs the network is built for `wasm32-wasip2` and shipped as jco's transpiled output under `<program>.p2/`. A native binary refuses as `ENOEXEC`.
+- **`fork`** imports the app's own module into a Web Worker with the Node layer. A child lives until the app's last page closes, so a daemon one tab started keeps serving the app's other tabs. Its sockets need grants like any other.
+
+This is not a route for Qt or JVM desktop apps, which would need a full recompilation with threads and a GUI toolkit.
+
+## The Electron layer
+
+`shim-electron` rebuilds Electron's `app`, `dialog`, `safeStorage`, `desktopCapturer`, `ipcRenderer` and `ipcMain`, `BrowserWindow`, `Menu` and `Tray` over `orivon.*`, or refuses them by name, so `require('electron')` resolves instead of failing to load. An API it cannot honour throws an error that says why, never a bare `TypeError`. For example, `safeStorage`'s asynchronous methods use `orivon.secrets`, and `desktopCapturer.getSources` opens Orivon's screen picker and returns the one source the person chose.
+
+**Paths become handles.** `orivon.fs.userSelected` returns a handle, never a host path. Code that takes a path from a dialog and joins it later has to be re-shaped around the handle by hand. Do not manufacture a path-shaped string instead: the handle exists so that paths do not leak.
+
+## orivon-ports
+
+[orivon-ports](https://github.com/OrivonBrowser/orivon-ports) is where third-party apps become Orivon apps. A port is never a fork: it is a recipe, a manifest and one bridge file. The upstream source is cloned at a pinned commit, built by its own toolchain and never committed, and each port states its pin and licence in its `UPSTREAM.md`.
+
+```bash
+npm install
+npm run doctor              # can this machine build and serve?
+node src/cli.ts run freetube
+```
+
+That clones FreeTube at its pinned commit, builds it and serves it on loopback. Open the URL it prints in Orivon and accept the prompt. Building an app runs its own install and build scripts with your privileges, which is why every recipe pins a commit rather than a branch.
+
+```text
+orivon-port recon <clone>      measure an app before committing to porting it
+orivon-port new <app> [name]   scaffold a recipe, a manifest, a bridge skeleton and its test
+orivon-port run <app>...       fetch, build and serve
+orivon-port test <app>...      run the bridge tests
+orivon-port hash <dir>         write a prepared tree's assets list and bundle hash (--check to verify)
+orivon-port names              map every app's .eth name to its local port
+orivon-port doctor             check this machine can build and serve
+```
+
+### The method
+
+1. **Measure.** `orivon-port recon` reads the app's preload. Named members, one per call, make a countable port. A single generic forwarder (`invoke(channel, ...args)`) hides the real surface in the main process, and recon reports that instead.
+2. **Classify every member** as something the browser already does, something answered inertly because there is no second process left to talk to, something refused by name, or something that needs a capability. In FreeTube's port most members needed no capability at all; the few that did use `orivon.fs` and `orivon.web.openContext`.
+3. **Write the bridge.** Declare the members whose answer is a name and a reason, and hand-write only the few that decide something. The bridge is a classic, synchronous script at the top of `<head>`, so it exists before any of the app's code runs. A member Orivon cannot honour throws a named error, never goes missing.
+4. **Build** the app's Electron renderer target by wrapping its own build config. The output must survive a static host: no pre-compressed files, and hash routing or a `_redirects` file.
+5. **Prepare.** Add `.well-known/orivon.json`, a `<link rel="orivon-manifest">` in the entry document and the bridge script, then write the `assets` list and the hash tree (see [publishing](./publishing)).
+6. **Test** every bridge member, then check the app does what it is for: metadata loading is not playback.
+
+A Node server app has no preload. Its server, bundled with esbuild and the shim's plugin, runs unmodified in a Worker of the app, and the page shows what it serves in a `<webview>`. Its manifest sets `crossOriginIsolated: true`, lists the listen port under `net.tcp.listen.local`, the shown origin as `http://*.localhost:<port>` under `web.embed.origins`, and what the server dials under `net.tcp.connect` and `net.https.connect`.
+
+The [porting guide](https://github.com/OrivonBrowser/orivon-ports/blob/main/docs/porting-guide.md) is the method in full, and the [recipe format](https://github.com/OrivonBrowser/orivon-ports/blob/main/docs/recipe-format.md) covers every field.
+
+## The ported apps
+
+Each of these runs upstream code, unmodified, from a `.eth` name.
+
+| App | Address | What the port shows |
+|---|---|---|
+| FreeTube | `freetube.orivonstack.eth` | The private YouTube desktop client. Its Electron renderer runs with `window.ftElectron` rebuilt over `orivon.*`, and `web.contexts` lets it run code as www.youtube.com. |
+| Element | `element.orivonstack.eth` | Element Desktop's own renderer for end-to-end encrypted Matrix chat. The bridge supplies `window.electron`; the manifest declares camera, microphone and screen. |
+| The Lounge | `thelounge.orivonstack.eth` | An IRC client whose own Node.js server, with Express, Socket.IO and SQLite, runs in a Worker inside the tab and reaches any IRC network. |
+| AirGap Vault | `airgapvault.orivonstack.eth` | AirGap's secret storage for offline signing. It needs nothing beyond ordinary browser APIs, so its manifest declares no capabilities. |
+| ASGARDEX | `asgardex.orivonstack.eth` | The THORChain cross-chain swap client. Most of its preload keeps files, and is answered over `orivon.fs`. |
+
+[`apps/freetube/`](https://github.com/OrivonBrowser/orivon-ports/tree/main/apps/freetube) is the worked example.

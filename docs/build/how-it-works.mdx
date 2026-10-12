@@ -1,0 +1,85 @@
+---
+title: How it works
+sidebar_label: How it works
+sidebar_position: 6
+description: How a call travels from an app's page to the operating system, what Orivon's security boundary is and is not, how .eth names and IPFS content are verified, and which part of Orivon is built to last.
+---
+
+This page follows a call from your app's code to the operating system. It says what Orivon's security boundary is and what it is not, how `.eth` names and IPFS content reach a tab, and which part of Orivon is built to last.
+
+## From a URL to a running app
+
+1. **A page loads.** It is an ordinary page until its HTML includes a `<link rel="orivon-manifest">` hint. Orivon never probes for a manifest on its own.
+2. **The manifest is read** from `/.well-known/orivon.json` on the page's own origin.
+3. **The files are fetched, hashed and pinned.** The manifest, the entry and every listed asset become one bundle hash. No prompt is shown for this, because caching inert files grants nothing.
+4. **The person decides, once.** One prompt, before the app's own code runs, for the whole declared set. The origin leads it, because any site can serve a manifest and the name in it is only claimed.
+5. **The app runs** from its cache, at its real origin, in a storage partition of its own.
+6. **Every call is checked** by the capability broker against what was granted.
+
+## The call path
+
+```text
+  your app's page           renderer process, sandboxed: no Node, no require
+        |
+        |  window.orivon.*  the interface defined in src/contracts/
+        v
+  preload                   isolated world; gives the page closures only,
+        |                   never the raw message port
+        |  IPC for control, one message channel per handle for bytes
+        v
+  capability broker         main process: manifest, grants, per-origin
+        |                   checks, handle tables
+        v
+  operating system          sockets, files, keyring
+```
+
+**The page is sandboxed.** It has no Node and no `require`. Everything it can do beyond a web page goes through `window.orivon`.
+
+**The preload is the privilege boundary.** It runs in an isolated world and hands the page closures, never the message port underneath. Handing the page that port would hand it a raw socket.
+
+**Control and bytes travel separately.** Opening, closing, signing and setting options go over IPC. The bytes of each socket or file go over a message channel of their own, with a credit window: the broker sends only so far ahead of what the page has read, and when the page stops reading, the broker stops reading the OS socket. Backpressure reaches the remote peer instead of piling up in memory.
+
+**The broker decides who is asking.** It takes the caller's origin from the frame that sent the message, never from anything the page says. A call from a script that a browser extension injected into the page is refused, so the app's grants stay with the app.
+
+**The grant is checked once, at acquisition.** `connect()` either returns a handle or it does not. The handle records which grant authorised it, so when that grant is switched off every handle it authorised closes at once. Handle tables are per origin, and every operation checks that the handle belongs to the caller.
+
+## Authorisation, not containment
+
+Orivon decides whether an app may do a thing. In this version it does not contain the app if that decision is wrong.
+
+An app granted `tcp.connect: ["*:*"]` can connect to any public address. That is the grant working, not failing. The broker is not a sandbox around the app's code. It is the one path from that code to what a web page cannot reach, and it enforces what was granted on that path.
+
+**For the person using an app,** a grant is real power on their machine. The prompt says it plainly: "Unlimited network access" means what it says. Any grant can be switched off from the address bar. [Permissions](/docs/using/permissions) covers this from their side.
+
+**For you, building an app:**
+
+- Declare the narrowest set your app needs. The prompt shows its breadth, and people read it.
+- A bug in your app that misuses a grant has the grant's full reach. Treat what you declare as the blast radius of your own mistakes.
+- The boundary covers what goes through `orivon.*` and the routed network path. What your page could already do as an ordinary web page, it still can.
+- Native code never runs as machine code. Native addons and child processes run as WebAssembly, under the same grants.
+
+Stronger sandboxing of untrusted apps is on the [roadmap](/docs/project/roadmap).
+
+## .eth names and IPFS
+
+A `.eth` name is an origin like any other, `https://<name>.eth`. What makes it different is who serves it.
+
+The **verifier host** is a separate process. It runs the light client, Helios, which proves what a name's contenthash points to from Ethereum state, starting from a checkpoint shipped with each release. It fetches the IPFS content from gateways, hashes every block against its CID, and serves only bytes that passed, from a loopback server. Every parser that reads untrusted input from the network, the light client among them, runs there and not in the main process.
+
+Servers deliver bytes and none of them is believed. An RPC or a gateway can refuse to answer or answer slowly; it cannot hand over a wrong name record or a wrong byte without the check failing. Each one does see what it is asked for, and [names and content](/docs/using/names-and-content) lists what that is.
+
+The address bar shows a name's content as `ipfs://<name>`. An `ipfs://<cid>` address is shown as itself and served at `https://<cid>.ipfs.orivon/`. Once the bytes are checked, the page is an ordinary one: the same hint, the same prompt and the same pin, which also records the CID.
+
+## The interface built to last
+
+The part of Orivon built to last is the interface apps are written against: [`src/contracts/`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/src/contracts/index.ts), the whole `orivon.*` surface as TypeScript types with no implementation in them. It imports nothing outside its own folder, and the build checks that it never does.
+
+Today `orivon.net.connect()` reaches a Node socket in Electron's main process. The interface is designed so that what sits underneath it can change without an app written against it changing a line.
+
+What this means for you:
+
+- Write against `orivon.*`, or the Node layer over it, not against Electron behaviour you happen to observe.
+- `platformCode` on an error is the platform's own detail, a Node error code today, and it is not versioned. Branch on `code`.
+- The API version is `0`, so breaking changes are still permitted. A change an app would feel is recorded under "Changed for apps" in the [changelog](https://github.com/OrivonBrowser/orivon-mvp/blob/main/CHANGELOG.md).
+
+[`ARCHITECTURE.md`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/ARCHITECTURE.md) explains how the pieces fit, and [`SECURITY.md`](https://github.com/OrivonBrowser/orivon-mvp/blob/main/SECURITY.md) says how to report a flaw in the broker's decisions.

@@ -1,0 +1,60 @@
+---
+title: Names and content you can verify
+sidebar_label: Names and content
+description: How Orivon proves .eth names and IPFS content on your own machine, and what the servers along the way can and cannot do.
+---
+
+# Names and content you can verify
+
+When you open a `.eth` name or an `ipfs://` address, Orivon does not take a server's word for what
+you get. It checks the answer on your machine. Servers still deliver the data; none of them is
+believed.
+
+## `.eth` names
+
+A `.eth` name is resolved by [Helios](https://github.com/a16z/helios), an Ethereum light client
+that runs inside Orivon. It follows the chain from a checkpoint shipped with each release and proves
+the name's record against it. No RPC provider is trusted to tell the truth.
+
+Addresses ending in `.eth.limo` or `.eth.link`, which other browsers reach through a gateway, open
+in Orivon as the real `.eth` name.
+
+## IPFS and IPNS
+
+`ipfs://` and `ipns://` addresses load block by block, and every block is hashed against its
+content identifier (CID) before it is used. DNSLink records are followed. Gateways are trusted to
+deliver bytes, never to be right about them.
+
+## What a server can and cannot do
+
+| A server can | A server cannot |
+|---|---|
+| Refuse to answer, or answer slowly | Hand you a wrong name record unnoticed |
+| See which name or content you asked for | Hand you a wrong byte unnoticed |
+
+In short: **servers can withhold, not lie.** The root of trust is the chain checkpoint that ships
+with each release.
+
+## What the servers learn
+
+Verification is about correctness, not anonymity. The servers that answer still see what they are
+asked:
+
+- the RPC servers learn the `.eth` names you open;
+- the IPFS gateways learn the content you fetch;
+- for some names, a DNS-over-HTTPS resolver or the name's own resolver learns the name.
+
+**Settings > Web3** lists every server involved and what each one learns.
+
+## When the light client runs
+
+It starts when you open or type a `.eth` address and stops about ten minutes after the last one.
+It also runs once shortly after launch when its newest checkpoint is more than seven days old.
+
+**Settings > Web3 > Verify .eth names on this computer** switches it off, from the next start.
+With it off, no `.eth` name loads: Orivon does not fall back to trusting a server.
+
+## What it proves for you
+
+Every verified load feeds the [Web3 Score](/docs/using/web3-score) in the address bar, so you can
+see at a glance whether a page came from somewhere you can check.

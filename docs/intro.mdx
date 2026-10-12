@@ -1,0 +1,93 @@
+---
+title: Introduction
+sidebar_label: Introduction
+slug: /
+description: Orivon is a desktop browser built for owning. Open a link, and a desktop app, a peer-to-peer client or a Node.js server runs in your tab, verified on your machine and holding only the powers you grant it.
+---
+
+# Orivon
+
+<p className="orv-lead">A browser built for owning. Open a link, and a desktop app, a peer-to-peer client or a whole Node.js server runs in your tab, verified on your machine and holding only the powers you grant it.</p>
+
+<Shot
+  src="/img/product/newtab.webp"
+  alt="The Orivon window: tabs, an address bar at ipfs://explore.orivonstack.eth, and the new-tab page over a mountain meadow"
+  width={1920}
+  height={1032}
+  eager
+/>
+
+## Why it exists
+
+A web page cannot open a socket, join a peer-to-peer network, check a blockchain or keep a file on
+your disk. That is the browser's sandbox doing its job. It is also why decentralised protocols
+reach you through a middleman:
+
+- the app at a `.com` is found through a registrar's DNS and served from a company's server;
+- the chain is read through an RPC provider you never chose, and IPFS through a gateway that sees
+  every byte;
+- anything that needs a real socket becomes a download to install, update and trust on faith.
+
+**The protocol is decentralised. The road to it is not.**
+
+Orivon closes that gap. An app is still a web page at a link. It declares what it needs, you grant
+it in plain words, and Orivon enforces your answer on every call. Names and content are proven on
+your machine instead of taken on a server's word.
+
+## What you get
+
+<Cards>
+  <Card title="Desktop apps, from a link" to="/docs/using/apps">
+    FreeTube, Element and The Lounge run in a tab from a `.eth` name: upstream code, unmodified,
+    with nothing to install.
+  </Card>
+  <Card title="Every power is yours to grant" to="/docs/using/permissions">
+    An app lists what it needs and you decide, in plain words. What it did not declare, it can never
+    get.
+  </Card>
+  <Card title="Verified, not trusted" to="/docs/using/names-and-content">
+    A light client on your machine proves `.eth` names, and every IPFS block is checked against its
+    hash.
+  </Card>
+  <Card title="A Web3 Score on every site" to="/docs/using/web3-score">
+    A shield in the address bar says whether you are on Web2, content you can verify, or open and
+    trustless Web3.
+  </Card>
+  <Card title="No Orivon server in the path" to="/docs/using/privacy">
+    No account, no cloud, no sync service. Your keys and data stay on your machine.
+  </Card>
+  <Card title="Your everyday browser, too" to="/docs/using/everyday-browsing">
+    Chrome extensions with full uBlock Origin, profiles, tab groups, split view, and imports from
+    the browser you use now.
+  </Card>
+</Cards>
+
+## Read, write, own
+
+Web1 let you read. Web2 let you write, on someone else's servers. Web3 adds a third verb: own.
+The name you open, the code you run, your keys and the decisions about them.
+
+Orivon is a browser for that third verb. Today it opens FreeTube, Element, The Lounge, AirGap Vault
+and ASGARDEX from their `.eth` names. The direction is wider: any Web3 codebase, from a full node to
+a DEX to a Tor proxy, running as a site the moment you open its name.
+
+## Start here
+
+<Cards columns={3}>
+  <Card title="Download and install" to="/docs/start/download">
+    Packages for Linux, Windows and macOS.
+  </Card>
+  <Card title="Quick start" to="/docs/start/quick-start">
+    Open your first app from a `.eth` name.
+  </Card>
+  <Card title="Build for Orivon" to="/docs/build/overview">
+    A web frontend and a manifest.
+  </Card>
+</Cards>
+
+:::note Early access
+
+Orivon is open source under AGPL-3.0 and in early access. [Known limitations](/docs/using/known-limitations)
+lists what it does not do yet, and the [roadmap](/docs/project/roadmap) what comes next.
+
+:::

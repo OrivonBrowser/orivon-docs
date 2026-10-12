@@ -1,0 +1,72 @@
+---
+title: Permissions in plain words
+sidebar_label: Permissions
+description: What an app can ask for, how Orivon asks you, and how to take a permission back.
+---
+
+# Permissions in plain words
+
+A web page is kept away from your network and your disk. An Orivon app can go further, but only as
+far as it declared and you allowed. Orivon's capability broker checks every connection, file and
+signature against that, on every call.
+
+## What you are asked
+
+An app's manifest lists each power it needs. Orivon turns that list into one question, written for
+a person rather than a developer:
+
+<Shot
+  src="/img/product/consent.webp"
+  alt="Element's question: unlimited network access, camera, microphone and screen sharing, with Deny and Allow"
+  width={1440}
+  height={900}
+/>
+
+Typical lines read:
+
+- *Unlimited network access. This app can connect to any computer on the internet, not just
+  specific ones.*
+- *Store files in a private folder for this app on this device.*
+- *Run code as www.youtube.com, in a private, empty session. It cannot see your account or anything
+  you keep there.*
+
+The address the app comes from is the title and the largest text. The name an app gives itself,
+which any site could claim, appears below it as *Claims to be "…"*. Lines that deserve a second
+look carry a warning mark.
+
+An app that declares nothing opens with no question at all.
+
+## Three rules that do not bend
+
+- **Nothing is implicit.** If a power is not in the manifest, it does not exist for that app.
+- **Not even you can add to it.** Whatever an app did not declare, it can never get, even if you
+  wanted to give it.
+- **A grant belongs to one origin.** What you allow `freetube.orivonstack.eth` is not shared with
+  any other address.
+
+## Changing your mind
+
+- The **Permissions** button in the address bar lists what the current app holds, each power with
+  its own switch.
+- **Settings > Apps** shows every app's permissions and files in one place.
+- Taking a permission back applies at once.
+
+<Shot
+  src="/img/product/permissions-popover.webp"
+  alt="The Permissions panel for thelounge.orivonstack.eth, with a switch beside each permission"
+  width={380}
+  height={460}
+  card
+/>
+
+## Ordinary site permissions
+
+Camera, microphone, location, clipboard and the other site permissions work as in any browser:
+a prompt the first time, a per-site panel, and a list in **Settings > Sites**. A pop-up is blocked
+unless you clicked for it.
+
+## What a permission is not
+
+A grant is permission, not a cage. Orivon decides what an app may reach; it does not yet isolate an
+app you allowed from misusing what you gave it. Allow apps you would trust as desktop software.
+[Known limitations](/docs/using/known-limitations) has the detail.

@@ -1,0 +1,59 @@
+---
+title: Apps from a link
+sidebar_label: Apps from a link
+description: How an address becomes an app in Orivon, why it then runs from your disk, and how updates wait for your consent.
+---
+
+# Apps from a link
+
+In Orivon an app is an ordinary web page at an address. What makes it an app is a manifest: a short
+file listing what it needs beyond what a web page may do, such as connecting to other computers or
+keeping files.
+
+There is no store, no review queue and no account. You open the address, and that is the app.
+
+## How an address becomes an app
+
+1. **The page says it has a manifest.** A hint in its own HTML points to it. Orivon never probes a
+   site for one, since that would tell every site you visit that you run Orivon.
+2. **Orivon fetches and checks the files.** The manifest and every file it lists are downloaded,
+   checked, cached and pinned by hash.
+3. **You are asked once.** One question covers everything the manifest declares. See
+   [Permissions in plain words](/docs/using/permissions).
+4. **Accepting installs it.** There is no separate install step and no "open as app" button: the
+   app is the address.
+
+## It runs from your disk
+
+After you accept, later visits run from the cached, pinned files, even with the network unplugged.
+The site-info panel of an installed app reads *Running from local cache, pinned*.
+
+## Updates wait for you
+
+An installed app keeps the exact version you accepted. When its name starts pointing at new
+content, Orivon asks before moving to it. Nothing changes behind your back.
+
+## What can run
+
+| Kind | Example | What Orivon provides |
+|---|---|---|
+| Web apps that need more than a page may do | Orivon Explore | Sockets, UDP, private files, embedded sites |
+| Node.js apps | The Lounge | Its own server (Express, Socket.IO, SQLite) runs inside the tab |
+| Electron desktop apps | FreeTube, Element | The desktop app's powers, granted to the page directly, without a fork |
+
+Native code runs only as WebAssembly. An app that needs a program installed on your system, or a
+native binary, is refused by name. Nothing an app ships runs as machine code on your computer.
+
+The apps you can open today are listed in the [Quick start](/docs/start/quick-start#try-the-others).
+
+## Local files
+
+A local HTML, SVG or PDF file opens in a tab. A local file that links a manifest asks once each
+time you open it.
+
+## Managing apps
+
+**Settings > Apps** lists each app with its permissions, the files it keeps and the space they use.
+A permission lasts until you take it back, and taking one back applies at once.
+
+Building one? Start at [Building for Orivon](/docs/build/overview).

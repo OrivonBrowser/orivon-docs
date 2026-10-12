@@ -1,0 +1,52 @@
+---
+title: Known limitations
+sidebar_label: Known limitations
+description: What Orivon does not do yet, written down so you meet it here rather than in use.
+---
+
+# Known limitations
+
+Orivon is in early access. These are the boundaries of what it does today. None of them is a bug,
+and the [roadmap](/docs/project/roadmap) says which ones are expected to move.
+
+## Apps
+
+- **Permission, not containment.** Orivon decides what an app may reach and enforces it on every
+  call. It does not yet isolate an app you allowed from misusing what you gave it. Allow apps you
+  would trust as desktop software.
+- **The first visit starts before your answer.** On an app's very first visit its code can start
+  before you answer the question. Anything it asks for in that moment is refused; after you accept,
+  the tab reloads with the grant in place.
+- **No native code.** Native modules and spawned programs run only as WebAssembly. An app that needs
+  a program installed on your system is refused by name.
+- **Not a wallet.** Orivon holds no funds. An app can get a signing key Orivon derives for it, which
+  holds nothing, has no seed phrase and cannot send or receive. A native wallet is on the way.
+
+## Network
+
+- **Peers see your IP address.** There is no Tor or proxy routing yet, so a peer-to-peer app
+  connects from your real address. When a system proxy is set, apps' sockets are refused rather than
+  routed around it.
+- **No automatic port forwarding.** There is no UPnP, so behind a router an app that listens for
+  peers is reachable only through a port you forward yourself.
+- **No local peer discovery.** Apps cannot use multicast.
+
+## Verification
+
+- **Correct, not anonymous.** `.eth` names and IPFS content are verified on your machine, but the
+  servers that deliver them see what you ask for. See
+  [Names and content](/docs/using/names-and-content#what-the-servers-learn).
+- **The light client uses data.** While `.eth` names are in use it follows the Ethereum chain, and
+  it stops about ten minutes after the last one.
+
+## Packages
+
+- **Windows and macOS packages are not signed with a bought certificate.** Each system warns once on
+  first run; [Download and install](/docs/start/download#first-run) shows what to click.
+- **Linux packages are not signed** on any distribution.
+- **Updates are manual.** Orivon can tell you a new release exists; you install it yourself.
+
+## Not built yet
+
+A wallet that holds funds, mobile, sync between devices, Tor, an app directory, Web3 search and
+code signing. The [roadmap](/docs/project/roadmap) lists them with no promise and no date.
