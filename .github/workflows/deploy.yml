@@ -24,6 +24,14 @@ jobs:
         run: npm ci
       - name: Build website
         run: npm run build
+      - name: Build Web3 website
+        run: node scripts/web3-links.mjs build build-web3
+      - name: Upload Web3 build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web3-build
+          path: build-web3
+          retention-days: 30
 
       - name: Upload Build Artifact
         uses: actions/upload-pages-artifact@v3

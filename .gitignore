@@ -3,6 +3,7 @@
 
 # Production
 /build
+/build-web3
 
 # Generated files
 .docusaurus

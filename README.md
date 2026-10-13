@@ -15,6 +15,20 @@ npm start        # live preview at http://localhost:3000
 npm run build    # static site in build/, fails on any broken link
 ```
 
+## Web2 and Web3 builds
+
+```bash
+npm run build         # build/, for docs.orivonstack.com on GitHub Pages
+npm run build:web3    # the same, plus build-web3/
+```
+
+`build-web3/` is the same site with every Orivon address pointing at its `.eth.limo` twin. It is
+published on IPFS behind the IPNS name that `docs.orivonstack.eth` points at, and any browser reaches
+it at `docs.orivonstack.eth.limo`. Orivon resolves the `.eth` name itself.
+
+`scripts/web3-links.mjs` does the rewrite. It is the same file in every Orivon repository that
+builds a static site. The source files keep Web2 addresses.
+
 ## Writing for these docs
 
 - Describe what Orivon does today. A feature that is not in the browser belongs on the roadmap, in
