@@ -1,29 +1,80 @@
 ---
 title: Download and install
 sidebar_label: Download and install
-description: Packages for Linux, Windows and macOS, what to click on first run, and how to run Orivon from source.
+description: Install Orivon from the Microsoft Store, winget or a Terminal command, get past SmartScreen and Gatekeeper, and run Orivon from source.
 ---
 
 # Download and install
 
-Orivon runs on Linux, Windows and macOS. The packages below come from the latest release on
-GitHub; your own platform is highlighted.
+Orivon runs on Linux, Windows and macOS. On Windows, install from the Microsoft Store. On a Mac,
+paste one command into Terminal. Both are below. The packages in this table come from the latest
+release on GitHub; your own platform is highlighted.
 
 <DownloadTable />
 
 Every release is also published on IPFS, with its `ipfs://` address in the release notes, and is
 available at `download.orivonstack.eth`.
 
-## First run
+## Windows
 
-**Linux.** Install the `.deb` with your package manager, or make the AppImage executable and run
-it. Only the `.deb` can register Orivon as your default browser.
+### Microsoft Store (recommended)
 
-**Windows.** The installer is per user and needs no administrator. It is not yet signed with a
-bought certificate, so SmartScreen warns once: choose **More info**, then **Run anyway**.
+Search the Microsoft Store for **Orivon Browser**, or [open it in the Store](https://apps.microsoft.com/search?query=Orivon%20Browser), and choose **Get**. Windows 10 version 1809 or newer.
 
-**macOS.** The app is signed ad hoc and not notarised, so the first open is refused. Open
-**System Settings > Privacy & Security** and choose **Open Anyway**. Later opens work normally.
+Microsoft signs the package, so there is no SmartScreen warning, and the Store keeps Orivon up to date.
+
+### winget
+
+In Terminal or PowerShell:
+
+```powershell
+winget install Orivon.Browser.Preview
+```
+
+`Orivon.Browser.Preview` is the pre-release channel. A full release will be `Orivon.Browser`.
+
+### Installer (.exe)
+
+Download the Windows installer from the table above and run it. It installs for your user only and
+needs no administrator.
+
+The installer is not signed with a bought certificate, so Windows SmartScreen shows **Windows
+protected your PC** on the first run. To get past it, choose **More info**, then **Run anyway**.
+
+## macOS {/* #macos */}
+
+### Terminal command (recommended)
+
+Open Terminal (press <kbd>⌘</kbd> <kbd>Space</kbd>, type `Terminal`, press <kbd>Return</kbd>). Paste
+this line (<kbd>⌘</kbd> <kbd>V</kbd>) and press <kbd>Return</kbd>:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/OrivonBrowser/orivon-mvp/main/scripts/install-macos.sh | bash
+```
+
+The command:
+
+1. Picks the build for your Mac, Apple silicon or Intel.
+2. Downloads it and checks its SHA-256 against the digest GitHub reports for the file.
+3. Copies Orivon.app into Applications, or into `~/Applications` if Applications is not writable.
+4. Opens Orivon.
+
+It never uses `sudo`. Gatekeeper shows no prompt, because `curl` sets no quarantine attribute on
+what it downloads. Run it again later to update. To read the script first, it is
+[on GitHub](https://github.com/OrivonBrowser/orivon-mvp/blob/main/scripts/install-macos.sh).
+
+### Disk image (.dmg)
+
+Download the `.dmg` for your Mac from the table above, open it, and drag Orivon to Applications. The
+app is signed ad hoc and not notarised, so the first open is refused. Open **System Settings >
+Privacy & Security** and choose **Open Anyway**. Later opens work normally.
+
+## Linux
+
+Install the `.deb` with your package manager, or make the AppImage executable and run it. Only the
+`.deb` can register Orivon as your default browser.
+
+## First launch
 
 On first launch Orivon asks one question: whether to send anonymous usage statistics. Both
 buttons are equal and neither is preselected. [Privacy and your data](/docs/using/privacy) says
@@ -51,5 +102,9 @@ No compiler is needed on any system; a check fails the build if a dependency wou
 
 ## Updates
 
-Orivon can check for a new release and tell you when one is out. The check is off by default and
-never installs anything: it links to the release page, and you download the new package yourself.
+A Microsoft Store install is updated by the Store. On macOS, run the Terminal command again to
+update.
+
+Otherwise, Orivon can check for a new release and tell you when one is out. The check is off by
+default and never installs anything: it links to the release page, and you download the new package
+yourself.
