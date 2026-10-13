@@ -105,6 +105,9 @@ export function DownloadTable() {
       {PACKAGES.map((p) => {
         const asset = release && release.assets[p.key];
         const mine = p.os === os;
+        const label = p.cta || (asset ? `Download${asset.size ? ' · ' + mb(asset.size) : ''}` : 'Releases');
+        // Link would route an ms-windows-store: address inside the site, so the Store app link is a plain anchor.
+        const appHref = mine && p.appHref;
         return (
           <div key={p.key} className={`${styles.row} ${mine ? styles.mine : ''}`}>
             <div className={styles.os}>
@@ -115,9 +118,11 @@ export function DownloadTable() {
               {p.detail}
               {mine && FIRST_RUN[p.key] && <em className={styles.firstRun}>{FIRST_RUN[p.key]}</em>}
             </div>
-            <Link className={styles.rowLink} to={p.href ? (mine && p.appHref) || p.href : asset ? asset.url : RELEASES_URL}>
-              {p.cta || (asset ? `Download${asset.size ? ' · ' + mb(asset.size) : ''}` : 'Releases')}
-            </Link>
+            {appHref ? (
+              <a className={styles.rowLink} href={appHref}>{label}</a>
+            ) : (
+              <Link className={styles.rowLink} to={p.href || (asset ? asset.url : RELEASES_URL)}>{label}</Link>
+            )}
           </div>
         );
       })}
