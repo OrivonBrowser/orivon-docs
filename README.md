@@ -28,6 +28,9 @@ it at `docs.orivonstack.eth.limo`. Orivon resolves the `.eth` name itself.
 
 `scripts/web3-links.mjs` does the rewrite. It is the same file in every Orivon repository that
 builds a static site. The source files keep Web2 addresses.
+The twin keeps the Web2 address in `<link rel="canonical">` and ships no `sitemap.xml`, so search
+engines index `docs.orivonstack.com` and treat `docs.orivonstack.eth.limo` as a copy. `trailingSlash: true`
+in `docusaurus.config.js` matches how GitHub Pages serves the pages (every page address ends in a slash).
 
 ## Writing for these docs
 

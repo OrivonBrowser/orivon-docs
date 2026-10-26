@@ -13,6 +13,9 @@ const config = {
 
   url: 'https://docs.orivonstack.com',
   baseUrl: '/',
+  // GitHub Pages answers /docs/x with a redirect to /docs/x/. Without this the canonical tag and the sitemap name the
+  // address without the slash, which redirects, and Google reports a canonical mismatch on the pages it has indexed.
+  trailingSlash: true,
 
   organizationName: 'OrivonBrowser',
   projectName: 'orivon-docs',
